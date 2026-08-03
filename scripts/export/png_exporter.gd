@@ -1,0 +1,92 @@
+class_name PngExporter
+extends RefCounted
+## Software-rasterize map using TileAtlas (matches on-screen look).
+
+static func render_map(map: MapData, scale: int = 2) -> Image:
+	return render_map_software(map, scale)
+
+
+static func save_png(path: String, map: MapData, scale: int = 2) -> Error:
+	var img := render_map_software(map, scale)
+	return img.save_png(path)
+
+
+static func render_map_software(map: MapData, scale: int = 2) -> Image:
+	TileAtlas.ensure()
+	var min_x := INF
+	var max_x := -INF
+	var min_y := INF
+	var max_y := -INF
+	for r in MapData.H:
+		for c in MapData.W:
+			var p := MapData.cell_to_screen(c, r)
+			min_x = minf(min_x, p.x - 16)
+			max_x = maxf(max_x, p.x + 16)
+			min_y = minf(min_y, p.y - 16)
+			max_y = maxf(max_y, p.y + 32)
+	var pad := 8.0
+	min_x -= pad
+	max_x += pad
+	min_y -= pad
+	max_y += pad
+	var w := int(ceil((max_x - min_x) * scale))
+	var h := int(ceil((max_y - min_y) * scale))
+	w = maxi(w, 16)
+	h = maxi(h, 16)
+	var img := Image.create(w, h, false, Image.FORMAT_RGBA8)
+	img.fill(Color(0.043, 0.059, 0.078, 1))
+
+	var order: Array[Vector2i] = []
+	for r in MapData.H:
+		for c in MapData.W:
+			order.append(Vector2i(c, r))
+	order.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
+		return (a.x + a.y) < (b.x + b.y) or ((a.x + a.y) == (b.x + b.y) and a.x < b.x)
+	)
+
+	for cell in order:
+		var p := MapData.cell_to_screen(cell.x, cell.y)
+		var gid := map.get_cell(Palette.LAYER_GROUND, cell.x, cell.y)
+		_blit_tile(img, p, min_x, min_y, scale, gid)
+	for cell in order:
+		var pid := map.get_cell(Palette.LAYER_PROPS, cell.x, cell.y)
+		if pid == Palette.EMPTY:
+			continue
+		var p2 := MapData.cell_to_screen(cell.x, cell.y)
+		_blit_tile(img, p2, min_x, min_y, scale, pid)
+	return img
+
+
+static func _blit_tile(dst: Image, top: Vector2, min_x: float, min_y: float, scale: int, id: int) -> void:
+	var tex := TileAtlas.texture_of(id)
+	if tex == null:
+		return
+	var src: Image = tex.get_image()
+	if src == null:
+		return
+	var ox: float
+	var oy: float
+	ox = (top.x - 16 - min_x) * scale
+	oy = (top.y - 16 - min_y) * scale
+	_blit_scaled(dst, src, int(ox), int(oy), scale)
+
+
+static func _blit_scaled(dst: Image, src: Image, ox: int, oy: int, scale: int) -> void:
+	var sw := src.get_width()
+	var sh := src.get_height()
+	for sy in sh:
+		for sx in sw:
+			var c := src.get_pixel(sx, sy)
+			if c.a < 0.05:
+				continue
+			for dy in scale:
+				for dx in scale:
+					var x := ox + sx * scale + dx
+					var y := oy + sy * scale + dy
+					if x >= 0 and y >= 0 and x < dst.get_width() and y < dst.get_height():
+						# simple alpha over
+						if c.a >= 0.99:
+							dst.set_pixel(x, y, c)
+						else:
+							var bg := dst.get_pixel(x, y)
+							dst.set_pixel(x, y, bg.lerp(c, c.a))

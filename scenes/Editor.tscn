@@ -1,0 +1,280 @@
+[gd_scene load_steps=4 format=3 uid="uid://ipm_editor"]
+
+[ext_resource type="Script" path="res://scripts/ui/editor_screen.gd" id="1_editor"]
+[ext_resource type="Script" path="res://scripts/view/iso_grid_view.gd" id="2_grid"]
+[ext_resource type="Script" path="res://scripts/ui/palette_bar.gd" id="3_palette"]
+
+[node name="Editor" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_editor")
+
+[node name="World" type="Node2D" parent="."]
+
+[node name="Camera2D" type="Camera2D" parent="World"]
+position = Vector2(0, 200)
+zoom = Vector2(1.2, 1.2)
+
+[node name="GridView" type="Node2D" parent="World"]
+unique_name_in_owner = true
+script = ExtResource("2_grid")
+
+[node name="UI" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="TopBar" type="PanelContainer" parent="UI"]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 48.0
+grow_horizontal = 2
+
+[node name="Margin" type="MarginContainer" parent="UI/TopBar"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 4
+
+[node name="HBox" type="HBoxContainer" parent="UI/TopBar/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Title" type="Label" parent="UI/TopBar/Margin/HBox"]
+layout_mode = 2
+text = "IsoMap"
+theme_override_colors/font_color = Color(0.24, 0.86, 0.59, 1)
+theme_override_font_sizes/font_size = 16
+
+[node name="Sep1" type="VSeparator" parent="UI/TopBar/Margin/HBox"]
+layout_mode = 2
+
+[node name="BtnPen" type="Button" parent="UI/TopBar/Margin/HBox"]
+layout_mode = 2
+text = "Pen"
+
+[node name="BtnErase" type="Button" parent="UI/TopBar/Margin/HBox"]
+layout_mode = 2
+text = "Erase"
+
+[node name="BtnFill" type="Button" parent="UI/TopBar/Margin/HBox"]
+layout_mode = 2
+text = "Fill"
+
+[node name="BtnUndo" type="Button" parent="UI/TopBar/Margin/HBox"]
+layout_mode = 2
+text = "Undo"
+
+[node name="BtnRedo" type="Button" parent="UI/TopBar/Margin/HBox"]
+layout_mode = 2
+text = "Redo"
+
+[node name="BtnZoomOut" type="Button" parent="UI/TopBar/Margin/HBox"]
+layout_mode = 2
+text = "−"
+
+[node name="BtnZoomIn" type="Button" parent="UI/TopBar/Margin/HBox"]
+layout_mode = 2
+text = "+"
+
+[node name="BtnGrid" type="Button" parent="UI/TopBar/Margin/HBox"]
+layout_mode = 2
+text = "Grid"
+
+[node name="Sep2" type="VSeparator" parent="UI/TopBar/Margin/HBox"]
+layout_mode = 2
+
+[node name="BtnGround" type="Button" parent="UI/TopBar/Margin/HBox"]
+layout_mode = 2
+text = "Ground"
+
+[node name="BtnProps" type="Button" parent="UI/TopBar/Margin/HBox"]
+layout_mode = 2
+text = "Props"
+
+[node name="Sep3" type="VSeparator" parent="UI/TopBar/Margin/HBox"]
+layout_mode = 2
+
+[node name="BtnNew" type="Button" parent="UI/TopBar/Margin/HBox"]
+layout_mode = 2
+text = "New"
+
+[node name="BtnLoad" type="Button" parent="UI/TopBar/Margin/HBox"]
+layout_mode = 2
+text = "Load"
+
+[node name="BtnSave" type="Button" parent="UI/TopBar/Margin/HBox"]
+layout_mode = 2
+text = "Save"
+
+[node name="BtnPng" type="Button" parent="UI/TopBar/Margin/HBox"]
+layout_mode = 2
+text = "PNG"
+
+[node name="BtnAbout" type="Button" parent="UI/TopBar/Margin/HBox"]
+layout_mode = 2
+text = "?"
+
+[node name="Spacer" type="Control" parent="UI/TopBar/Margin/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="StatusLabel" type="Label" parent="UI/TopBar/Margin/HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ready"
+theme_override_colors/font_color = Color(0.7, 0.75, 0.8, 1)
+
+[node name="BottomBar" type="PanelContainer" parent="UI"]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -64.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="Margin" type="MarginContainer" parent="UI/BottomBar"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="UI/BottomBar/Margin"]
+layout_mode = 2
+
+[node name="HintLabel" type="Label" parent="UI/BottomBar/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Click to paint · Scroll to zoom · Drag middle/right to pan"
+theme_override_colors/font_color = Color(0.55, 0.6, 0.65, 1)
+theme_override_font_sizes/font_size = 12
+
+[node name="PaletteBar" type="HBoxContainer" parent="UI/BottomBar/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+script = ExtResource("3_palette")
+
+[node name="AboutPanel" type="PanelContainer" parent="UI"]
+unique_name_in_owner = true
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -220.0
+offset_top = -100.0
+offset_right = 220.0
+offset_bottom = 100.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Margin" type="MarginContainer" parent="UI/AboutPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 12
+
+[node name="VBox" type="VBoxContainer" parent="UI/AboutPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="AboutTitle" type="Label" parent="UI/AboutPanel/Margin/VBox"]
+layout_mode = 2
+text = "Isometric Pixel Map"
+horizontal_alignment = 1
+
+[node name="AboutBody" type="Label" parent="UI/AboutPanel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Retro isometric pixel map editor. Paint a mini world, export PNG or JSON. No account needed."
+autowrap_mode = 3
+horizontal_alignment = 1
+
+[node name="AboutClose" type="Button" parent="UI/AboutPanel/Margin/VBox"]
+layout_mode = 2
+text = "Close"
+
+[node name="Splash" type="ColorRect" parent="UI"]
+unique_name_in_owner = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.043, 0.059, 0.078, 1)
+
+[node name="SplashLabel" type="Label" parent="UI/Splash"]
+unique_name_in_owner = true
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -180.0
+offset_top = -24.0
+offset_right = 180.0
+offset_bottom = 24.0
+theme_override_colors/font_color = Color(0.24, 0.86, 0.59, 1)
+theme_override_font_sizes/font_size = 28
+text = "Isometric Pixel Map"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="SplashSub" type="Label" parent="UI/Splash"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -180.0
+offset_top = 20.0
+offset_right = 180.0
+offset_bottom = 44.0
+theme_override_colors/font_color = Color(0.55, 0.6, 0.65, 1)
+theme_override_font_sizes/font_size = 14
+text = "paint · export · share"
+horizontal_alignment = 1
+
+[node name="ToastLabel" type="Label" parent="UI"]
+unique_name_in_owner = true
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -160.0
+offset_top = -120.0
+offset_right = 160.0
+offset_bottom = -88.0
+theme_override_colors/font_color = Color(0.95, 0.96, 0.98, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.8)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 16
+text = ""
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[connection signal="pressed" from="UI/TopBar/Margin/HBox/BtnPen" to="." method="_on_pen_pressed"]
+[connection signal="pressed" from="UI/TopBar/Margin/HBox/BtnErase" to="." method="_on_erase_pressed"]
+[connection signal="pressed" from="UI/TopBar/Margin/HBox/BtnFill" to="." method="_on_fill_pressed"]
+[connection signal="pressed" from="UI/TopBar/Margin/HBox/BtnUndo" to="." method="_on_undo_pressed"]
+[connection signal="pressed" from="UI/TopBar/Margin/HBox/BtnRedo" to="." method="_on_redo_pressed"]
+[connection signal="pressed" from="UI/TopBar/Margin/HBox/BtnZoomOut" to="." method="_on_zoom_out"]
+[connection signal="pressed" from="UI/TopBar/Margin/HBox/BtnZoomIn" to="." method="_on_zoom_in"]
+[connection signal="pressed" from="UI/TopBar/Margin/HBox/BtnGrid" to="." method="_on_grid_toggle"]
+[connection signal="pressed" from="UI/TopBar/Margin/HBox/BtnGround" to="." method="_on_layer_ground"]
+[connection signal="pressed" from="UI/TopBar/Margin/HBox/BtnProps" to="." method="_on_layer_props"]
+[connection signal="pressed" from="UI/TopBar/Margin/HBox/BtnNew" to="." method="_on_new_pressed"]
+[connection signal="pressed" from="UI/TopBar/Margin/HBox/BtnLoad" to="." method="_on_load_pressed"]
+[connection signal="pressed" from="UI/TopBar/Margin/HBox/BtnSave" to="." method="_on_save_pressed"]
+[connection signal="pressed" from="UI/TopBar/Margin/HBox/BtnPng" to="." method="_on_export_png_pressed"]
+[connection signal="pressed" from="UI/TopBar/Margin/HBox/BtnAbout" to="." method="_on_about_pressed"]
+[connection signal="pressed" from="UI/AboutPanel/Margin/VBox/AboutClose" to="." method="_on_about_close"]

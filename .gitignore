@@ -1,0 +1,31 @@
+.godot/
+.import/
+.mono/
+*.translation
+export_presets.cfg.bak
+
+# Build artifacts
+build/
+builds/
+*.apk
+*.aab
+*.ipa
+*.zip
+!assets/**/*.zip
+
+# Secrets / local
+android/keystore.keystore
+android/release.keystore
+*.keystore
+.env
+.env.*
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db
+*~
+*.swp
+
+# Screenshots temp
+screenshots/.tmp/
