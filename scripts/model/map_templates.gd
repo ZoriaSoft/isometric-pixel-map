@@ -184,7 +184,6 @@ static func _crossroads() -> MapData:
 		_set_g(m, 15 - d, 14, Palette.DIRT)
 		_set_g(m, 15 + d + 1, 17, Palette.DIRT)
 	# landmarks (sparse — not clutter)
-	_set_p(m, 12, 12, Palette.SIGN if false else Palette.ROCK)  # no sign tile
 	_set_p(m, 12, 12, Palette.ROCK)
 	_set_p(m, 19, 12, Palette.TREE)
 	_set_p(m, 12, 19, Palette.TREE)
