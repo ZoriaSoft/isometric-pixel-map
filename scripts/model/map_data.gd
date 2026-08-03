@@ -133,7 +133,7 @@ static func _fill_layer(target: PackedInt32Array, src: Variant) -> void:
 			target[i] = int(arr[i])
 
 
-## Hand-authored mini village seed (wow + no blank-page fear).
+## Default first-run map (village). Prefer MapTemplates.make(id) for choices.
 static func make_seed() -> MapData:
 	var m := MapData.new()
 	m.title = "Demo Village"

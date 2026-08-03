@@ -9,6 +9,7 @@ func _init() -> void:
 	failed += _test_atlas()
 	failed += _test_png()
 	failed += _test_seed()
+	failed += _test_templates()
 	if failed == 0:
 		print("SELFTEST PASS")
 		quit(0)
@@ -150,4 +151,33 @@ func _test_seed() -> int:
 		print("FAIL seed pond")
 		return 1
 	print("OK seed props=", non_empty_props)
+	return 0
+
+
+func _test_templates() -> int:
+	print("== templates ==")
+	var cat := MapTemplates.catalog()
+	if cat.size() < 5:
+		print("FAIL catalog too small ", cat.size())
+		return 1
+	for e in cat:
+		var id := str(e.get("id", ""))
+		var m := MapTemplates.make(id)
+		if m == null or m.ground.size() != MapData.W * MapData.H:
+			print("FAIL template ", id)
+			return 1
+		if m.title.strip_edges() == "":
+			print("FAIL empty title ", id)
+			return 1
+	# island should be mostly water on corners
+	var island := MapTemplates.make(MapTemplates.ID_ISLAND)
+	if island.get_cell("ground", 0, 0) != Palette.WATER:
+		print("FAIL island corner not water")
+		return 1
+	# blank all grass
+	var blank := MapTemplates.make(MapTemplates.ID_BLANK)
+	if blank.get_cell("ground", 5, 5) != Palette.GRASS:
+		print("FAIL blank not grass")
+		return 1
+	print("OK templates count=", cat.size())
 	return 0

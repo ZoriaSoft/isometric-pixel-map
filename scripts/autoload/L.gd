@@ -27,6 +27,7 @@ var _strings: Dictionary = {
 		"export_fail": "PNG export failed",
 		"grid_on": "Grid on",
 		"grid_off": "Grid off",
+		"template_loaded": "Template",
 	},
 	"tr": {
 		"app_name": "Isometric Pixel Map",
@@ -39,6 +40,7 @@ var _strings: Dictionary = {
 		"save_json": "JSON Kaydet",
 		"load_json": "JSON Yükle",
 		"new_map": "Yeni harita",
+		"template_loaded": "Şablon",
 		"undo": "Geri al",
 		"redo": "İleri al",
 		"about": "Hakkında",

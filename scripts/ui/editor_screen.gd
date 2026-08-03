@@ -18,10 +18,12 @@ extends Control
 var _file_dialog: FileDialog
 var _save_dialog: FileDialog
 var _png_dialog: FileDialog
+var _template_menu: PopupMenu
 var _space_down: bool = false
 var _toast_tween: Tween
 var _style_active: StyleBoxFlat
 var _style_normal: StyleBoxFlat
+var _template_ids: Array[String] = []
 
 
 func _ready() -> void:
@@ -29,6 +31,7 @@ func _ready() -> void:
 	theme = ThemeApply.make_theme()
 	_style_active = ThemeApply.active_tool_style()
 	_style_normal = theme.get_stylebox("normal", "Button").duplicate() as StyleBoxFlat
+	_build_template_menu()
 	_build_file_dialogs()
 	_refresh_labels()
 	_refresh_tool_styles()
@@ -254,9 +257,43 @@ func _on_grid_toggle() -> void:
 		show_toast(L.t("grid_on") if gv.show_grid else L.t("grid_off"))
 
 
+func _build_template_menu() -> void:
+	_template_menu = PopupMenu.new()
+	_template_menu.name = "TemplateMenu"
+	add_child(_template_menu)
+	_template_ids.clear()
+	var i := 0
+	for entry in MapTemplates.catalog():
+		var id := str(entry.get("id", ""))
+		var title := str(entry.get("title", id))
+		var blurb := str(entry.get("blurb", ""))
+		_template_menu.add_item("%s — %s" % [title, blurb], i)
+		_template_ids.append(id)
+		i += 1
+	_template_menu.id_pressed.connect(_on_template_chosen)
+
+
 func _on_new_pressed() -> void:
-	Game.new_map(true)
-	show_toast(L.t("new_map"))
+	# Show template picker under New button
+	if _template_menu == null:
+		Game.new_from_template(MapTemplates.ID_BLANK)
+		show_toast(L.t("new_map"))
+		return
+	var btn := get_node_or_null("UI/TopBar/Margin/HBox/BtnNew") as Button
+	if btn:
+		var g := btn.get_global_rect()
+		_template_menu.position = Vector2i(int(g.position.x), int(g.position.y + g.size.y))
+	else:
+		_template_menu.position = Vector2i(80, 56)
+	_template_menu.popup()
+
+
+func _on_template_chosen(index: int) -> void:
+	if index < 0 or index >= _template_ids.size():
+		return
+	var tid := _template_ids[index]
+	Game.new_from_template(tid)
+	show_toast("%s: %s" % [L.t("template_loaded"), MapTemplates.title_of(tid)])
 
 
 func _on_load_pressed() -> void:

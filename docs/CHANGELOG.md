@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.1+5] — 2026-08-03
+
+### Added
+- **7 map templates** via Maps ▾ menu: Blank, Village, Forest, Island, Desert Ruins, Lakeside, Stone Outpost
+- `MapTemplates` catalog + selftest coverage
+
 ## [0.2.0+4] — 2026-08-03
 
 ### Added

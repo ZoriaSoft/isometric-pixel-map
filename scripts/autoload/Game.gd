@@ -1,7 +1,7 @@
 extends Node
 ## Global map state, tools, undo, save/load, export helpers.
 
-const APP_VERSION := "0.2.0+4"
+const APP_VERSION := "0.2.1+5"
 const AUTOSAVE_PATH := "user://autosave.json"
 const MAX_UNDO := 48
 
@@ -31,17 +31,17 @@ func _ready() -> void:
 	Palette.ensure()
 	load_settings()
 	if not _try_load_autosave():
-		map = MapData.make_seed()
+		map = MapTemplates.make(MapTemplates.ID_VILLAGE)
 	map_changed.emit()
 
 
 func new_map(seeded: bool = true) -> void:
+	new_from_template(MapTemplates.ID_VILLAGE if seeded else MapTemplates.ID_BLANK)
+
+
+func new_from_template(template_id: String) -> void:
 	_push_undo()
-	map = MapData.make_seed() if seeded else MapData.new()
-	if not seeded:
-		# empty grass field so paint feels immediate
-		for i in map.ground.size():
-			map.ground[i] = Palette.GRASS
+	map = MapTemplates.make(template_id)
 	_redo.clear()
 	_persist_autosave()
 	map_changed.emit()

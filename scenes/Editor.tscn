@@ -100,7 +100,8 @@ layout_mode = 2
 
 [node name="BtnNew" type="Button" parent="UI/TopBar/Margin/HBox"]
 layout_mode = 2
-text = "New"
+text = "Maps ▾"
+tooltip_text = "Start from a template map"
 
 [node name="BtnLoad" type="Button" parent="UI/TopBar/Margin/HBox"]
 layout_mode = 2

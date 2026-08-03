@@ -22,7 +22,7 @@ Built for game jams, mockups, pixel-art fun, and quick “show my map” posts.
 - Ground + props layers
 - Pen / erase / fill / undo / redo
 - Built-in pixel palette (runtime atlas)
-- Demo village seed map
+- **7 starting maps** (blank, village, forest, island, desert, lake, outpost)
 - Export PNG + Save/Load JSON
 - Touch: 1-finger paint, 2-finger pan + pinch
 - Grid toggle, zoom +/−, Space+drag pan
