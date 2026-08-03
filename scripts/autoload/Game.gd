@@ -1,7 +1,7 @@
 extends Node
 ## Global map state, tools, undo, save/load, export helpers.
 
-const APP_VERSION := "0.2.2+6"
+const APP_VERSION := "0.2.3+7"
 const AUTOSAVE_PATH := "user://autosave.json"
 const MAX_UNDO := 48
 

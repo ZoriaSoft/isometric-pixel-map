@@ -1,5 +1,5 @@
 extends Node
-## i18n helper — EN primary for MVP web; TR ready.
+## i18n — EN primary for web MVP; TR ready.
 
 var _strings: Dictionary = {
 	"en": {
@@ -16,9 +16,10 @@ var _strings: Dictionary = {
 		"undo": "Undo",
 		"redo": "Redo",
 		"about": "About",
-		"hint": "Paint: click-drag · Zoom: scroll or +/- · Pan: right-drag / Space+drag · Touch: 1 finger paint, 2 finger pan+pinch",
-		"about_body": "Retro isometric pixel map editor. Paint a mini world, export PNG or JSON. No account needed. Free to use in the browser.",
+		"hint": "Paint · Scroll zoom · RMB / Space pan",
+		"about_body": "Retro isometric pixel map editor. Paint a mini world, export PNG or JSON. No account needed.",
 		"about_free": "Free & open source. Paint · export · share.",
+		"shortcuts": "P pen · E erase · F fill · G grid · 1 ground · 2 props · Ctrl+Z/Y undo/redo · Maps = starters",
 		"saved": "JSON downloaded",
 		"loaded": "Map loaded",
 		"exported": "PNG downloaded",
@@ -44,9 +45,10 @@ var _strings: Dictionary = {
 		"undo": "Geri al",
 		"redo": "İleri al",
 		"about": "Hakkında",
-		"hint": "Boya: tıkla-sürükle · Zoom: tekerlek veya +/- · Kaydır: sağ tık / Space+sürükle · Dokunma: 1 parmak boya, 2 parmak kaydır+pinch",
-		"about_body": "Retro izometrik pixel harita editörü. Mini dünya boya, PNG veya JSON indir. Hesap yok. Tarayıcıda ücretsiz.",
+		"hint": "Boya · Zoom tekerlek · Kaydır: sağ tık / Space",
+		"about_body": "Retro izometrik pixel harita editörü. Mini dünya boya, PNG veya JSON indir. Hesap yok.",
 		"about_free": "Ücretsiz ve açık kaynak. Boya · dışa aktar · paylaş.",
+		"shortcuts": "P kalem · E silgi · F doldur · G ızgara · 1 zemin · 2 üst · Ctrl+Z/Y · Maps = şablonlar",
 		"saved": "JSON indirildi",
 		"loaded": "Harita yüklendi",
 		"exported": "PNG indirildi",

@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.2.3+7] — 2026-08-03
+
+### Changed
+- **Header redesign** (honest design review P0/P1): grouped tools/history/view/layers/file
+- Compact tool buttons (P/E/F) with tooltips; PNG as primary CTA
+- Distinct tool vs layer vs grid toggle styles
+- Shorter status + hint; About cheatsheet + dimmer
+- Palette dims inactive-layer tiles
+
 ## [0.2.2+6] — 2026-08-03
 
 ### Changed
