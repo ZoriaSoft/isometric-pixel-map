@@ -1,6 +1,7 @@
 # Show HN draft — Isometric Pixel Map
 
-**Live:** https://zo.pub/triangle/isometric-pixel-map
+**Live:** https://zo.pub/triangle/isometric-pixel-map  
+**Source:** https://github.com/ZoriaSoft/isometric-pixel-map
 
 ---
 
@@ -32,6 +33,7 @@ What works today:
 Stack: Godot 4.6 → Web (gl_compatibility), static host.
 
 Link: https://zo.pub/triangle/isometric-pixel-map
+Source (MIT): https://github.com/ZoriaSoft/isometric-pixel-map
 
 Would love feedback on UX (especially mobile) and which tiles people want next.
 ```

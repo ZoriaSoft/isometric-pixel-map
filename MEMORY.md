@@ -7,8 +7,9 @@
 ### Live (ücretsiz)
 https://zo.pub/triangle/isometric-pixel-map
 
-### GitHub
-Ayrı public repo (MIT) — bu klasör kendi git root'u.
+### GitHub (public, MIT)
+https://github.com/ZoriaSoft/isometric-pixel-map  
+Tag: `v0.2.0`
 
 ### Bu tur
 - UI theme + aktif tool highlight + Grid toggle
