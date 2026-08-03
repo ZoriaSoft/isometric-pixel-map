@@ -18,3 +18,10 @@
 **Durum:** Accepted  
 **Karar:** İlk sürüm renkli diamond + basit prop vektörleri; gerçek pixel atlas Faz 2/3 polish.  
 **Neden:** Oyun döngüsünü (boya/export) asset üretiminden ayırır.
+
+## ADR-0004 — Job-driven map templates (no filler)
+**Tarih:** 2026-08-03  
+**Durum:** Accepted  
+**Karar:** Built-in maps = exactly 6, each tied to a user job: Blank, Settlement, Wilderness, Crossroads, Coast, Stronghold. Scenic-only maps (desert ruins, extra lakes) rejected.  
+**Neden:** Tool users are jam/indie/mockup/worldbuilding — not tourists. Every template must answer “what am I starting to design?”  
+**Not:** “All industries” is not the goal; **all primary jobs of this tool’s audience** is.

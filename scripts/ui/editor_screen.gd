@@ -266,8 +266,8 @@ func _build_template_menu() -> void:
 	for entry in MapTemplates.catalog():
 		var id := str(entry.get("id", ""))
 		var title := str(entry.get("title", id))
-		var blurb := str(entry.get("blurb", ""))
-		_template_menu.add_item("%s — %s" % [title, blurb], i)
+		var use := str(entry.get("use", entry.get("blurb", "")))
+		_template_menu.add_item("%s — %s" % [title, use], i)
 		_template_ids.append(id)
 		i += 1
 	_template_menu.id_pressed.connect(_on_template_chosen)

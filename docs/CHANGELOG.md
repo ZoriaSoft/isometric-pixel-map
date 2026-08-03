@@ -1,10 +1,16 @@
 # Changelog
 
+## [0.2.2+6] — 2026-08-03
+
+### Changed
+- Templates trimmed to **6 job-driven starters** only (no scenic filler)
+- Catalog shows **use-case** text (who needs this map)
+- Retired desert + lake as separate fillers; coast covers water; crossroads added for overworld
+
 ## [0.2.1+5] — 2026-08-03
 
 ### Added
-- **7 map templates** via Maps ▾ menu: Blank, Village, Forest, Island, Desert Ruins, Lakeside, Stone Outpost
-- `MapTemplates` catalog + selftest coverage
+- Map templates via Maps ▾ menu + `MapTemplates` catalog + selftest
 
 ## [0.2.0+4] — 2026-08-03
 

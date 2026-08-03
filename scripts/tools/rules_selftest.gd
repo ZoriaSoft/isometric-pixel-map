@@ -157,9 +157,30 @@ func _test_seed() -> int:
 func _test_templates() -> int:
 	print("== templates ==")
 	var cat := MapTemplates.catalog()
-	if cat.size() < 5:
-		print("FAIL catalog too small ", cat.size())
+	# Job-driven set: exactly the useful six (no filler)
+	if cat.size() != 6:
+		print("FAIL catalog size want 6 got ", cat.size())
 		return 1
+	var required := [
+		MapTemplates.ID_BLANK,
+		MapTemplates.ID_SETTLEMENT,
+		MapTemplates.ID_WILDERNESS,
+		MapTemplates.ID_CROSSROADS,
+		MapTemplates.ID_COAST,
+		MapTemplates.ID_STRONGHOLD,
+	]
+	for rid in required:
+		var found := false
+		for e in cat:
+			if str(e.get("id", "")) == rid:
+				found = true
+				if str(e.get("use", "")).strip_edges() == "":
+					print("FAIL missing use-case for ", rid)
+					return 1
+				break
+		if not found:
+			print("FAIL missing template ", rid)
+			return 1
 	for e in cat:
 		var id := str(e.get("id", ""))
 		var m := MapTemplates.make(id)
@@ -169,15 +190,24 @@ func _test_templates() -> int:
 		if m.title.strip_edges() == "":
 			print("FAIL empty title ", id)
 			return 1
-	# island should be mostly water on corners
-	var island := MapTemplates.make(MapTemplates.ID_ISLAND)
-	if island.get_cell("ground", 0, 0) != Palette.WATER:
-		print("FAIL island corner not water")
+	var coast := MapTemplates.make(MapTemplates.ID_COAST)
+	if coast.get_cell("ground", 0, 0) != Palette.WATER:
+		print("FAIL coast corner not water")
 		return 1
-	# blank all grass
 	var blank := MapTemplates.make(MapTemplates.ID_BLANK)
 	if blank.get_cell("ground", 5, 5) != Palette.GRASS:
 		print("FAIL blank not grass")
+		return 1
+	# crossroads center should be path/stone
+	var cr := MapTemplates.make(MapTemplates.ID_CROSSROADS)
+	var mid := cr.get_cell("ground", 15, 15)
+	if mid != Palette.PATH and mid != Palette.STONE:
+		print("FAIL crossroads center ", mid)
+		return 1
+	# legacy alias still works
+	var legacy := MapTemplates.make("village")
+	if legacy.title != "Settlement":
+		print("FAIL legacy village alias title=", legacy.title)
 		return 1
 	print("OK templates count=", cat.size())
 	return 0
