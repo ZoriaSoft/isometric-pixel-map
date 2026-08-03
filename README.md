@@ -86,8 +86,14 @@ PRs welcome — keep scope tight (tool-first, no accounts/cloud in MVP path).
 bash scripts/tools/verify.sh   # must pass
 ```
 
+## Related
+
+- **[NapkinPlan](https://github.com/ZoriaSoft/napkin-plan)** — stamp a room layout in 60 seconds (Canvas floor sketch)  
+  Live: https://zo.pub/triangle/napkin-plan
+
 ## License
 
 [MIT](LICENSE) — free to use, modify, and ship.
 
 Godot Engine has its own license; see [godotengine.org/license](https://godotengine.org/license).
+
