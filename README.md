@@ -89,7 +89,7 @@ bash scripts/tools/verify.sh   # must pass
 ## Related
 
 - **[NapkinPlan](https://github.com/ZoriaSoft/napkin-plan)** — stamp a room layout in 60 seconds (Canvas floor sketch)  
-  Live: https://zo.pub/triangle/napkin-plan
+  Live: https://zo.pub/triangle/napkin-plan/index.html
 
 ## License
 
