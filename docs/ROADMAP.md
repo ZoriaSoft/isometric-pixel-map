@@ -25,7 +25,10 @@
 - [ ] Size trim (wasm ~36MB engine fixed — optional later)
 
 ## Post-MVP
-- Next.js thin marketing shell (SEO/OG)
+- ~~Next.js thin marketing shell (SEO/OG)~~ (optional)
+- ~~Custom tile upload~~ (optional)
+- Larger maps / brush size — ✅ brush size done (v0.3.0)
+- ~~Share link (hash of map data)~~ — ✅ done (v0.3.0)
+- Diff-based undo (for larger maps — current full-clone OK for 32×32)
 - Custom tile upload
-- Larger maps / brush size
-- Share link (hash of map data)
+- Tile variations (random per-cell)

@@ -76,6 +76,20 @@ static func pick_json() -> void:
 	JavaScriptBridge.eval("if (window.ipmPickJson) window.ipmPickJson();")
 
 
+## RMB is used for panning — suppress the browser context menu on the canvas.
+static func block_context_menu() -> void:
+	if not is_web():
+		return
+	JavaScriptBridge.eval("""
+(function(){
+  if (window.__ipmNoCtx) return;
+  window.__ipmNoCtx = true;
+  var target = document.querySelector('canvas') || document;
+  target.addEventListener('contextmenu', function(e){ e.preventDefault(); });
+})();
+""")
+
+
 static func download_text(filename: String, text: String, mime: String = "application/json") -> void:
 	if not is_web():
 		return

@@ -1,6 +1,7 @@
 class_name PngExporter
 extends RefCounted
 ## Software-rasterize map using TileAtlas (matches on-screen look).
+## Uses Image.blend_rect for fast alpha compositing (C++ level, not per-pixel GDScript).
 
 static func render_map(map: MapData, scale: int = 2) -> Image:
 	return render_map_software(map, scale)
@@ -44,49 +45,65 @@ static func render_map_software(map: MapData, scale: int = 2) -> Image:
 		return (a.x + a.y) < (b.x + b.y) or ((a.x + a.y) == (b.x + b.y) and a.x < b.x)
 	)
 
+	# Pre-render scaled tile cache: id -> Image
+	var tile_cache: Dictionary = {}
+
+	# ground pass
 	for cell in order:
 		var p := MapData.cell_to_screen(cell.x, cell.y)
 		var gid := map.get_cell(Palette.LAYER_GROUND, cell.x, cell.y)
-		_blit_tile(img, p, min_x, min_y, scale, gid)
+		if gid == Palette.EMPTY:
+			continue
+		_blit_tile_cached(img, p, min_x, min_y, scale, gid, tile_cache)
+	# props pass
 	for cell in order:
 		var pid := map.get_cell(Palette.LAYER_PROPS, cell.x, cell.y)
 		if pid == Palette.EMPTY:
 			continue
 		var p2 := MapData.cell_to_screen(cell.x, cell.y)
-		_blit_tile(img, p2, min_x, min_y, scale, pid)
+		_blit_tile_cached(img, p2, min_x, min_y, scale, pid, tile_cache)
 	return img
 
 
-static func _blit_tile(dst: Image, top: Vector2, min_x: float, min_y: float, scale: int, id: int) -> void:
+static func _blit_tile_cached(dst: Image, top: Vector2, min_x: float, min_y: float, scale: int, id: int, cache: Dictionary) -> void:
 	var tex := TileAtlas.texture_of(id)
 	if tex == null:
 		return
 	var src: Image = tex.get_image()
 	if src == null:
 		return
-	var ox: float
-	var oy: float
-	ox = (top.x - 16 - min_x) * scale
-	oy = (top.y - 16 - min_y) * scale
-	_blit_scaled(dst, src, int(ox), int(oy), scale)
-
-
-static func _blit_scaled(dst: Image, src: Image, ox: int, oy: int, scale: int) -> void:
-	var sw := src.get_width()
-	var sh := src.get_height()
-	for sy in sh:
-		for sx in sw:
-			var c := src.get_pixel(sx, sy)
-			if c.a < 0.05:
-				continue
-			for dy in scale:
-				for dx in scale:
-					var x := ox + sx * scale + dx
-					var y := oy + sy * scale + dy
-					if x >= 0 and y >= 0 and x < dst.get_width() and y < dst.get_height():
-						# simple alpha over
-						if c.a >= 0.99:
-							dst.set_pixel(x, y, c)
-						else:
-							var bg := dst.get_pixel(x, y)
-							dst.set_pixel(x, y, bg.lerp(c, c.a))
+	# Get or create scaled version
+	var scaled: Image
+	if cache.has(id):
+		scaled = cache[id]
+	else:
+		if scale == 1:
+			scaled = src
+		else:
+			scaled = Image.create(src.get_width() * scale, src.get_height() * scale, false, Image.FORMAT_RGBA8)
+			scaled.fill(Color(0, 0, 0, 0))
+			# Nearest-neighbor scale by blitting each pixel as a scale×scale block
+			for sy in src.get_height():
+				for sx in src.get_width():
+					var c := src.get_pixel(sx, sy)
+					if c.a < 0.05:
+						continue
+					for dy in scale:
+						for dx in scale:
+							scaled.set_pixel(sx * scale + dx, sy * scale + dy, c)
+		cache[id] = scaled
+	# Composite using blend_rect (native C++ alpha blend)
+	var ox := int((top.x - 16 - min_x) * scale)
+	var oy := int((top.y - 16 - min_y) * scale)
+	var sw := scaled.get_width()
+	var sh := scaled.get_height()
+	# Clamp to dst bounds
+	var src_x := maxi(0, -ox)
+	var src_y := maxi(0, -oy)
+	var dst_x := maxi(0, ox)
+	var dst_y := maxi(0, oy)
+	var blit_w := mini(sw - src_x, dst.get_width() - dst_x)
+	var blit_h := mini(sh - src_y, dst.get_height() - dst_y)
+	if blit_w <= 0 or blit_h <= 0:
+		return
+	dst.blend_rect(scaled, Rect2i(src_x, src_y, blit_w, blit_h), Vector2i(dst_x, dst_y))

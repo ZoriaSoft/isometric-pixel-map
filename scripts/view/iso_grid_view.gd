@@ -51,7 +51,7 @@ func _draw() -> void:
 		var gid := m.get_cell(Palette.LAYER_GROUND, cell.x, cell.y)
 		_draw_tile(base, gid)
 		if show_grid:
-			_draw_diamond_outline(base, Color(0, 0, 0, 0.12))
+			_draw_diamond_outline(base, Color(1, 1, 1, 0.08))
 	# props
 	for cell in _order_cache:
 		var pid := m.get_cell(Palette.LAYER_PROPS, cell.x, cell.y)
@@ -59,17 +59,23 @@ func _draw() -> void:
 			continue
 		var base2 := MapData.cell_to_screen(cell.x, cell.y) + origin
 		_draw_tile(base2, pid)
-	# hover ghost
+	# hover ghost — brush footprint (fill tool fills a region, so show 1 cell)
 	if m.in_bounds(hover_cell.x, hover_cell.y):
 		var hb := MapData.cell_to_screen(hover_cell.x, hover_cell.y) + origin
+		var radius := 0 if Game.current_tool == Game.Tool.FILL else Game.get_brush_radius()
 		if Game.current_tool == Game.Tool.ERASE:
-			_draw_diamond_outline(hb, Color(1, 0.35, 0.35, 0.9))
-			_draw_diamond_fill(hb, Color(1, 0.25, 0.25, 0.25))
+			_draw_brush_footprint(hover_cell, radius, Color(1, 0.35, 0.35, 0.9), Color(1, 0.25, 0.25, 0.25))
 		else:
 			var tex := TileAtlas.texture_of(Game.selected_tile)
 			if tex:
 				var dest := Rect2(hb.x - 16, hb.y - 16, 32, 32)
 				draw_texture_rect(tex, dest, false, Color(1, 1, 1, 0.5))
+			# accent outline on hover cell(s)
+			var accent := Color(0.24, 0.86, 0.59, 0.7)
+			if radius == 0:
+				_draw_diamond_outline(hb, accent)
+			else:
+				_draw_brush_footprint(hover_cell, radius, accent, Color())
 
 
 func _draw_tile(top: Vector2, id: int) -> void:
@@ -106,6 +112,20 @@ func _draw_diamond_outline(top: Vector2, color: Color) -> void:
 		top + Vector2(0, 0),
 	])
 	draw_polyline(pts, color, 1.0, true)
+
+
+## Outline (and optional tint) for every in-bounds cell covered by the brush.
+func _draw_brush_footprint(center: Vector2i, radius: int, outline: Color, fill: Color) -> void:
+	for dr in range(-radius, radius + 1):
+		for dc in range(-radius, radius + 1):
+			var cc := center.x + dc
+			var rr := center.y + dr
+			if not Game.map.in_bounds(cc, rr):
+				continue
+			var b := MapData.cell_to_screen(cc, rr) + origin
+			if fill.a > 0.0:
+				_draw_diamond_fill(b, fill)
+			_draw_diamond_outline(b, outline)
 
 
 func world_to_cell(world: Vector2) -> Vector2i:

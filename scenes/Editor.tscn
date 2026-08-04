@@ -80,6 +80,20 @@ text = "F"
 [node name="SepTools" type="VSeparator" parent="UI/TopBar/Margin/HBox"]
 layout_mode = 2
 
+[node name="Brush" type="HBoxContainer" parent="UI/TopBar/Margin/HBox"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="BtnBrush" type="Button" parent="UI/TopBar/Margin/HBox/Brush"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(40, 32)
+layout_mode = 2
+tooltip_text = "Brush size (B)"
+text = "1×"
+
+[node name="SepBrush" type="VSeparator" parent="UI/TopBar/Margin/HBox"]
+layout_mode = 2
+
 [node name="History" type="HBoxContainer" parent="UI/TopBar/Margin/HBox"]
 layout_mode = 2
 theme_override_constants/separation = 3
@@ -170,6 +184,12 @@ unique_name_in_owner = true
 layout_mode = 2
 tooltip_text = "Export PNG image"
 text = "PNG"
+
+[node name="BtnShare" type="Button" parent="UI/TopBar/Margin/HBox/File"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Copy share link"
+text = "Share"
 
 [node name="BtnAbout" type="Button" parent="UI/TopBar/Margin/HBox"]
 custom_minimum_size = Vector2(36, 32)
@@ -359,6 +379,7 @@ vertical_alignment = 1
 [connection signal="pressed" from="UI/TopBar/Margin/HBox/Tools/BtnPen" to="." method="_on_pen_pressed"]
 [connection signal="pressed" from="UI/TopBar/Margin/HBox/Tools/BtnErase" to="." method="_on_erase_pressed"]
 [connection signal="pressed" from="UI/TopBar/Margin/HBox/Tools/BtnFill" to="." method="_on_fill_pressed"]
+[connection signal="pressed" from="UI/TopBar/Margin/HBox/Brush/BtnBrush" to="." method="_on_brush_pressed"]
 [connection signal="pressed" from="UI/TopBar/Margin/HBox/History/BtnUndo" to="." method="_on_undo_pressed"]
 [connection signal="pressed" from="UI/TopBar/Margin/HBox/History/BtnRedo" to="." method="_on_redo_pressed"]
 [connection signal="pressed" from="UI/TopBar/Margin/HBox/View/BtnZoomOut" to="." method="_on_zoom_out"]
@@ -370,6 +391,7 @@ vertical_alignment = 1
 [connection signal="pressed" from="UI/TopBar/Margin/HBox/File/BtnLoad" to="." method="_on_load_pressed"]
 [connection signal="pressed" from="UI/TopBar/Margin/HBox/File/BtnSave" to="." method="_on_save_pressed"]
 [connection signal="pressed" from="UI/TopBar/Margin/HBox/File/BtnPng" to="." method="_on_export_png_pressed"]
+[connection signal="pressed" from="UI/TopBar/Margin/HBox/File/BtnShare" to="." method="_on_share_pressed"]
 [connection signal="pressed" from="UI/TopBar/Margin/HBox/BtnAbout" to="." method="_on_about_pressed"]
 [connection signal="gui_input" from="UI/Dimmer" to="." method="_on_dimmer_input"]
 [connection signal="pressed" from="UI/AboutPanel/Margin/VBox/AboutClose" to="." method="_on_about_close"]

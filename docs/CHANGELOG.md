@@ -1,5 +1,44 @@
 # Changelog
 
+## [0.3.1+9] — 2026-08-04
+
+### Fixed
+- **Flood fill truncated on large regions** — pop-count guard capped fills at ~25% of the map; rewritten with seen-on-push + filled-count guard (now fills full 32×32 correctly)
+- **Invalid JSON silently wiped the map** — `from_json` returned an empty map instead of null; corrupt autosave / bad file / invalid share hash now rejected properly
+- **Web right-click panning opened browser context menu** — canvas-level `contextmenu` suppression added via WebBridge
+
+### Improved
+- **Brush footprint ghost** — hover outline now shows the full brush area (3×/5×), not just a single cell; FILL tool still shows 1-cell target
+- **Selftest coverage** — added `_test_fill_full_map` (real Game code path, 1024 cells) and `_test_bad_json` (garbage/non-map input → null)
+- Deduped redundant `selection_changed` emit in `Game.set_layer`
+
+## [0.3.0+8] — 2026-08-04
+
+### Added
+- **Brush size** (1×/3×/5×) — cycle with `B` key or toolbar button
+- **7 new tiles:** Snow, Lava, Bridge (ground); Bush, Tent, Barrel, Lamp (props)
+- **Share link** — copy map as URL hash (`#m=<base64>`), paste link to reload
+- **New shortcuts:** `B` brush, `Ctrl+S` save, `Ctrl+E` PNG, `Ctrl+N` new map
+- `Escape` closes about panel or resets tool to pen
+
+### Changed
+- **PNG export 10-50× faster** — `Image.blend_rect` replaces per-pixel GDScript alpha blending
+- **Tile atlas polish** — richer tree foliage, steeper house roof, organic rock shape, water dual-wave, stone cracks, wood grain detail
+- **Grid lines softer** — white 8% alpha (was black 12%)
+- **Hover outline** — accent teal outline on hovered cell
+- **Splash shorter** — 0.6s total (was 1.05s)
+- Desert alias now maps to Coast (was Blank)
+
+### Removed
+- `Audio.gd` autoload — dead infrastructure, never called
+- `sfx_volume`/`music_volume` from settings
+
+### Fixed
+- Flood fill magic number `1000` → `MapData.W` (collision-safe for larger grids)
+- `export_preview.gd` unnecessary `res://` write attempt on export builds
+- `serve_web.py` unnecessary COOP/COEP headers (thread_support=false)
+- `palette_bar.gd` misleading comment about layer polling
+
 ## [0.2.3+7] — 2026-08-03
 
 ### Changed

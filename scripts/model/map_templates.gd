@@ -87,9 +87,9 @@ static func _normalize(template_id: String) -> String:
 		"island", "lake", "lakeside":
 			return ID_COAST
 		"outpost", "fort", "desert":
-			# desert retired → nearest useful job is stronghold / blank; map old desert → blank-ish sand via coast? better blank
+			# desert retired → coast has sand + water (closest match)
 			if template_id == "desert":
-				return ID_BLANK
+				return ID_COAST
 			return ID_STRONGHOLD
 		_:
 			return template_id

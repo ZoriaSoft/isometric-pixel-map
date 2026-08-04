@@ -19,7 +19,7 @@ var _strings: Dictionary = {
 		"hint": "Paint · Scroll zoom · RMB / Space pan",
 		"about_body": "Retro isometric pixel map editor. Paint a mini world, export PNG or JSON. No account needed.",
 		"about_free": "Free & open source. Paint · export · share.",
-		"shortcuts": "P pen · E erase · F fill · G grid · 1 ground · 2 props · Ctrl+Z/Y undo/redo · Maps = starters",
+		"shortcuts": "P pen · E erase · F fill · B brush · G grid · 1 ground · 2 props · Ctrl+Z/Y undo/redo · Ctrl+S save · Ctrl+E PNG · Ctrl+N new · Maps = starters",
 		"saved": "JSON downloaded",
 		"loaded": "Map loaded",
 		"exported": "PNG downloaded",
@@ -29,6 +29,8 @@ var _strings: Dictionary = {
 		"grid_on": "Grid on",
 		"grid_off": "Grid off",
 		"template_loaded": "Template",
+		"share_copied": "Share link copied!",
+		"brush_size": "Brush",
 	},
 	"tr": {
 		"app_name": "Isometric Pixel Map",
@@ -48,7 +50,7 @@ var _strings: Dictionary = {
 		"hint": "Boya · Zoom tekerlek · Kaydır: sağ tık / Space",
 		"about_body": "Retro izometrik pixel harita editörü. Mini dünya boya, PNG veya JSON indir. Hesap yok.",
 		"about_free": "Ücretsiz ve açık kaynak. Boya · dışa aktar · paylaş.",
-		"shortcuts": "P kalem · E silgi · F doldur · G ızgara · 1 zemin · 2 üst · Ctrl+Z/Y · Maps = şablonlar",
+		"shortcuts": "P kalem · E silgi · F doldur · B fırça · G ızgara · 1 zemin · 2 üst · Ctrl+Z/Y · Ctrl+S kaydet · Ctrl+E PNG · Ctrl+N yeni · Maps = şablonlar",
 		"saved": "JSON indirildi",
 		"loaded": "Harita yüklendi",
 		"exported": "PNG indirildi",
@@ -57,6 +59,8 @@ var _strings: Dictionary = {
 		"export_fail": "PNG export başarısız",
 		"grid_on": "Izgara açık",
 		"grid_off": "Izgara kapalı",
+		"share_copied": "Paylaşım linki kopyalandı!",
+		"brush_size": "Fırça",
 	},
 }
 

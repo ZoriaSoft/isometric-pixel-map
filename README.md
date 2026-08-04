@@ -19,9 +19,12 @@ Built for game jams, mockups, pixel-art fun, and quick “show my map” posts.
 ## Features
 
 - 32×32 classic 2:1 isometric grid
-- Ground + props layers
+- Ground + props layers (17 tile types)
 - Pen / erase / fill / undo / redo
-- Built-in pixel palette (runtime atlas)
+- **Brush size** — 1×, 3×, 5× (cycle with `B`)
+- Built-in pixel palette (runtime atlas, no external assets)
+- **7 new tiles:** Snow, Lava, Bridge, Bush, Tent, Barrel, Lamp
+- **Share link** — copy map as URL, paste to reload
 - **6 job-driven starters** (blank, settlement, wilderness, crossroads, coast, stronghold)
 - Export PNG + Save/Load JSON
 - Touch: 1-finger paint, 2-finger pan + pinch
@@ -37,7 +40,12 @@ Built for game jams, mockups, pixel-art fun, and quick “show my map” posts.
 | Zoom | Scroll or `+` / `−` | Pinch |
 | Undo / Redo | Ctrl+Z / Ctrl+Y | Buttons |
 | Tools | P / E / F | Buttons |
+| Brush size | B | Button |
 | Grid | G | Grid button |
+| Save JSON | Ctrl+S | Save button |
+| Export PNG | Ctrl+E | PNG button |
+| New map | Ctrl+N | Maps button |
+| Share link | — | Share button |
 
 ## Run locally (Godot)
 

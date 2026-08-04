@@ -7,11 +7,7 @@ func _ready() -> void:
 	_rebuild()
 	Game.selection_changed.connect(_highlight)
 	Game.tool_changed.connect(_highlight)
-	# layer changes also via selection_changed when auto-pick fires; hook map too
-	if not Game.map_changed.is_connected(_highlight):
-		# map_changed not needed; listen selection + poll layer via selection
-		pass
-	# re-highlight when layer changes without selection change
+	# layer changes emit selection_changed via Game.set_layer → auto-pick fires it
 	set_process(false)
 
 

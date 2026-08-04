@@ -18,6 +18,8 @@ extends Control
 @onready var btn_props: Button = %BtnProps
 @onready var btn_grid: Button = %BtnGrid
 @onready var btn_png: Button = %BtnPng
+@onready var btn_brush: Button = %BtnBrush
+@onready var btn_share: Button = %BtnShare
 
 var _file_dialog: FileDialog
 var _save_dialog: FileDialog
@@ -40,6 +42,7 @@ func _ready() -> void:
 	Game.map_changed.connect(_on_map_changed)
 	Game.selection_changed.connect(_on_selection)
 	Game.tool_changed.connect(_refresh_chrome_styles)
+	Game.brush_changed.connect(_on_brush_changed)
 	_set_about_open(false)
 	if about_body:
 		about_body.text = "%s\n\n%s\nv%s" % [L.t("about_body"), L.t("about_free"), Game.APP_VERSION]
@@ -52,9 +55,34 @@ func _ready() -> void:
 		_grid_on = gv.show_grid
 	if WebBridge.is_web():
 		WebBridge.ensure_load_hook(_on_web_json_text)
+		WebBridge.block_context_menu()
+		_try_load_share_hash()
 	if toast_label:
 		toast_label.modulate.a = 0.0
 	_run_splash()
+	_update_brush_label()
+
+
+func _on_brush_changed() -> void:
+	_update_brush_label()
+
+
+func _update_brush_label() -> void:
+	if btn_brush:
+		btn_brush.text = Game.BRUSH_LABELS[Game.brush_index]
+
+
+func _try_load_share_hash() -> void:
+	if not WebBridge.is_web():
+		return
+	var hash: Variant = JavaScriptBridge.eval("window.location.hash.slice(1);", true)
+	if hash == null:
+		return
+	var s := str(hash)
+	if s.begins_with("m="):
+		var b64 := s.substr(2)
+		if not b64.is_empty() and Game.import_share_hash(b64):
+			show_toast(L.t("loaded"))
 
 
 func _style_primary_png() -> void:
@@ -128,8 +156,8 @@ func _run_splash() -> void:
 	if splash_label:
 		splash_label.text = L.t("app_name")
 	var tw := create_tween()
-	tw.tween_interval(0.6)
-	tw.tween_property(splash, "modulate:a", 0.0, 0.45)
+	tw.tween_interval(0.3)
+	tw.tween_property(splash, "modulate:a", 0.0, 0.3)
 	tw.tween_callback(func() -> void:
 		splash.visible = false
 	)
@@ -197,10 +225,16 @@ func _unhandled_input(event: InputEvent) -> void:
 			if has_node("%GridView"):
 				%GridView.set("space_pan", _space_down)
 			return
-		if k.keycode == KEY_ESCAPE and k.pressed and about_panel and about_panel.visible:
-			_set_about_open(false)
-			get_viewport().set_input_as_handled()
-			return
+		if k.keycode == KEY_ESCAPE and k.pressed:
+			if about_panel and about_panel.visible:
+				_set_about_open(false)
+				get_viewport().set_input_as_handled()
+				return
+			if Game.current_tool != Game.Tool.PEN:
+				Game.set_tool(Game.Tool.PEN)
+				_refresh_chrome_styles()
+				get_viewport().set_input_as_handled()
+				return
 		if not k.pressed or k.echo:
 			return
 		if k.ctrl_pressed and k.keycode == KEY_Z:
@@ -211,6 +245,15 @@ func _unhandled_input(event: InputEvent) -> void:
 			Game.redo()
 			show_toast(L.t("redo"))
 			get_viewport().set_input_as_handled()
+		elif k.ctrl_pressed and k.keycode == KEY_S:
+			_on_save_pressed()
+			get_viewport().set_input_as_handled()
+		elif k.ctrl_pressed and k.keycode == KEY_E:
+			_on_export_png_pressed()
+			get_viewport().set_input_as_handled()
+		elif k.ctrl_pressed and k.keycode == KEY_N:
+			_on_new_pressed()
+			get_viewport().set_input_as_handled()
 		elif k.keycode == KEY_P:
 			Game.set_tool(Game.Tool.PEN)
 			_refresh_chrome_styles()
@@ -220,6 +263,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		elif k.keycode == KEY_F:
 			Game.set_tool(Game.Tool.FILL)
 			_refresh_chrome_styles()
+		elif k.keycode == KEY_B:
+			Game.cycle_brush()
 		elif k.keycode == KEY_G:
 			_on_grid_toggle()
 		elif k.keycode == KEY_1:
@@ -364,6 +409,29 @@ func _on_export_png_pressed() -> void:
 	else:
 		_png_dialog.current_file = "isometric-map.png"
 		_png_dialog.popup_centered_ratio(0.6)
+
+
+func _on_brush_pressed() -> void:
+	Game.cycle_brush()
+
+
+func _on_share_pressed() -> void:
+	if not WebBridge.is_web():
+		show_toast("Share link works in web export only")
+		return
+	var b64 := Game.export_share_hash()
+	JavaScriptBridge.eval("""
+(function(){
+	var url = window.location.origin + window.location.pathname + '#m=' + '%s';
+	history.replaceState(null, '', url);
+	if (navigator.clipboard) {
+		navigator.clipboard.writeText(url).then(function(){
+			console.log('share link copied');
+		}).catch(function(){});
+	}
+})();
+""" % b64)
+	show_toast(L.t("share_copied"))
 
 
 func _on_about_pressed() -> void:

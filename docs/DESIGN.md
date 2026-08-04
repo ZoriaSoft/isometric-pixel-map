@@ -27,14 +27,16 @@ Godot default UI font (MVP). Bundled pixel font opsiyonel post-MVP.
 - Tooltip: Click / Scroll / Drag
 - Tek sahne editör; ayrı landing route yok
 
-## Chrome (toolbar) — v0.2.3
+## Chrome (toolbar) — v0.3.0
 ```
-[Iso] | [P E F] | [↶ ↷] | [− + #] | [Ground|Props] | Maps Load Save [PNG] | ? |····| status
- brand   tools     hist     view       layers*          file + primary CTA
+[Iso] | [P E F] | [1× 3× 5×] | [↶ ↷] | [− + #] | [Ground|Props] | Maps Load Save [PNG] [Share] | ? |··| status
+ brand   tools     brush         hist     view       layers*          file + primary CTA + share
 ```
 - Tools: compact + teal active fill
+- Brush: cycle 1×/3×/5× (B key)
 - Layers: quieter segment style (not same as tools)
 - Grid: yellow-green toggle when on
 - PNG: primary/accent CTA
+- Share: copy map as URL hash
 - Status: `title · layer · tile` (hover: `x,y · ground/prop`)
 - Bottom: short hint + palette (inactive layer tiles dimmed)

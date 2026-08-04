@@ -108,6 +108,8 @@ func to_json() -> String:
 
 
 static func from_dict(d: Dictionary) -> MapData:
+	if not d.has("layers"):
+		return null
 	var m := MapData.new()
 	if int(d.get("w", W)) != W or int(d.get("h", H)) != H:
 		push_warning("MapData: size mismatch, keeping %dx%d" % [W, H])
@@ -118,11 +120,12 @@ static func from_dict(d: Dictionary) -> MapData:
 	return m
 
 
+## Returns null on invalid/non-map JSON — callers rely on this to reject bad input.
 static func from_json(text: String) -> MapData:
 	var parsed: Variant = JSON.parse_string(text)
 	if parsed is Dictionary:
 		return from_dict(parsed)
-	return MapData.new()
+	return null
 
 
 static func _fill_layer(target: PackedInt32Array, src: Variant) -> void:

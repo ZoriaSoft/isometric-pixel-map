@@ -1,19 +1,22 @@
 extends Node
 ## Global map state, tools, undo, save/load, export helpers.
 
-const APP_VERSION := "0.2.3+7"
+const APP_VERSION := "0.3.1+9"
 const AUTOSAVE_PATH := "user://autosave.json"
 const MAX_UNDO := 48
 
 signal map_changed
 signal tool_changed
 signal selection_changed
+signal brush_changed
 
 enum Tool { PEN, ERASE, FILL }
 
+## Brush sizes — radius in cells (0=1×1, 1=3×3, 2=5×5)
+const BRUSH_RADII := [0, 1, 2]
+const BRUSH_LABELS := ["1×", "3×", "5×"]
+
 var settings: Dictionary = {
-	"sfx_volume": 1.0,
-	"music_volume": 0.8,
 	"locale": "en",
 }
 
@@ -21,6 +24,7 @@ var map: MapData
 var active_layer: String = Palette.LAYER_GROUND
 var selected_tile: int = Palette.GRASS
 var current_tool: Tool = Tool.PEN
+var brush_index: int = 0
 
 var _undo: Array[MapData] = []
 var _redo: Array[MapData] = []
@@ -65,7 +69,6 @@ func set_layer(layer: String) -> void:
 		var ids: Array[int] = Palette.ground_ids() if layer == Palette.LAYER_GROUND else Palette.prop_ids()
 		if not ids.is_empty():
 			selected_tile = ids[0]
-			selection_changed.emit()
 	selection_changed.emit()
 
 
@@ -78,6 +81,15 @@ func select_tile(id: int) -> void:
 	current_tool = Tool.PEN
 	selection_changed.emit()
 	tool_changed.emit()
+
+
+func cycle_brush() -> void:
+	brush_index = (brush_index + 1) % BRUSH_RADII.size()
+	brush_changed.emit()
+
+
+func get_brush_radius() -> int:
+	return BRUSH_RADII[brush_index]
 
 
 func begin_stroke() -> void:
@@ -105,15 +117,29 @@ func paint_at(c: int, r: int) -> void:
 			var tid := selected_tile
 			if tid != Palette.EMPTY and Palette.layer_of(tid) != layer:
 				layer = Palette.layer_of(tid)
-			if map.set_cell(layer, c, r, tid):
+			var radius := get_brush_radius()
+			var changed := false
+			for dr in range(-radius, radius + 1):
+				for dc in range(-radius, radius + 1):
+					if map.set_cell(layer, c + dc, r + dr, tid):
+						changed = true
+			if changed:
 				map_changed.emit()
 		Tool.ERASE:
+			var radius := get_brush_radius()
 			var erased := false
-			# erase props first if present, else ground → empty-ish (grass default)
-			if map.get_cell(Palette.LAYER_PROPS, c, r) != Palette.EMPTY:
-				erased = map.set_cell(Palette.LAYER_PROPS, c, r, Palette.EMPTY)
-			else:
-				erased = map.set_cell(Palette.LAYER_GROUND, c, r, Palette.GRASS)
+			for dr in range(-radius, radius + 1):
+				for dc in range(-radius, radius + 1):
+					var cc := c + dc
+					var rr := r + dr
+					if not map.in_bounds(cc, rr):
+						continue
+					if map.get_cell(Palette.LAYER_PROPS, cc, rr) != Palette.EMPTY:
+						if map.set_cell(Palette.LAYER_PROPS, cc, rr, Palette.EMPTY):
+							erased = true
+					else:
+						if map.set_cell(Palette.LAYER_GROUND, cc, rr, Palette.GRASS):
+							erased = true
 			if erased:
 				map_changed.emit()
 		Tool.FILL:
@@ -130,32 +156,32 @@ func _flood_fill(c: int, r: int) -> void:
 		if map.set_cell(layer, c, r, tid):
 			map_changed.emit()
 		return
+	if not map.in_bounds(c, r):
+		return
 	var target := map.get_cell(layer, c, r)
 	if target == tid:
 		return
-	var stack: Array[Vector2i] = [Vector2i(c, r)]
+	# Mark seen on push so each cell enters the stack at most once —
+	# a pop-count guard truncates fills larger than ~W*H/4 cells.
 	var seen := {}
-	var changed := false
-	var guard := 0
+	var stack: Array[Vector2i] = [Vector2i(c, r)]
+	seen[r * MapData.W + c] = true
+	var filled := 0
 	var max_cells := MapData.W * MapData.H
-	while not stack.is_empty() and guard < max_cells:
-		guard += 1
+	while not stack.is_empty() and filled < max_cells:
 		var p: Vector2i = stack.pop_back()
-		var key := p.x * 1000 + p.y
-		if seen.has(key):
-			continue
-		seen[key] = true
-		if not map.in_bounds(p.x, p.y):
-			continue
 		if map.get_cell(layer, p.x, p.y) != target:
 			continue
 		if map.set_cell(layer, p.x, p.y, tid):
-			changed = true
-		stack.append(Vector2i(p.x + 1, p.y))
-		stack.append(Vector2i(p.x - 1, p.y))
-		stack.append(Vector2i(p.x, p.y + 1))
-		stack.append(Vector2i(p.x, p.y - 1))
-	if changed:
+			filled += 1
+		for n in [Vector2i(p.x + 1, p.y), Vector2i(p.x - 1, p.y), Vector2i(p.x, p.y + 1), Vector2i(p.x, p.y - 1)]:
+			if not map.in_bounds(n.x, n.y):
+				continue
+			var key: int = n.y * MapData.W + n.x
+			if not seen.has(key):
+				seen[key] = true
+				stack.append(n)
+	if filled > 0:
 		map_changed.emit()
 
 
@@ -240,8 +266,8 @@ func _try_load_autosave() -> bool:
 	f.close()
 	var m := MapData.from_json(text)
 	if m == null:
+		# corrupt autosave → fall back to template instead of a blank map
 		return false
-	# reject empty/corrupt all-zero maps from bad parse as "no autosave"
 	map = m
 	return true
 
@@ -260,3 +286,20 @@ func save_settings() -> void:
 	if f:
 		f.store_var(settings)
 		f.close()
+
+
+## --- Share link (hash-based) ---
+
+func export_share_hash() -> String:
+	var d := map.to_dict()
+	var json := JSON.stringify(d)
+	return Marshalls.utf8_to_base64(json)
+
+
+func import_share_hash(b64: String) -> bool:
+	if b64.is_empty():
+		return false
+	var json := Marshalls.base64_to_utf8(b64)
+	if json.is_empty():
+		return false
+	return import_json_text(json)

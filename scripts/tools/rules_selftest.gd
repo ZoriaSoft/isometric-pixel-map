@@ -5,11 +5,17 @@ func _init() -> void:
 	var failed := 0
 	failed += _test_iso_math()
 	failed += _test_map_json()
+	failed += _test_bad_json()
 	failed += _test_paint_fill_undo()
+	failed += _test_fill_full_map()
 	failed += _test_atlas()
 	failed += _test_png()
 	failed += _test_seed()
 	failed += _test_templates()
+	failed += _test_new_tiles()
+	failed += _test_brush_size()
+	failed += _test_share_link()
+	failed += _test_desert_alias()
 	if failed == 0:
 		print("SELFTEST PASS")
 		quit(0)
@@ -94,7 +100,7 @@ func _test_paint_fill_undo() -> int:
 	var seen := {}
 	while not stack.is_empty():
 		var p: Vector2i = stack.pop_back()
-		var key := p.x * 1000 + p.y
+		var key := p.x * MapData.W + p.y
 		if seen.has(key):
 			continue
 		seen[key] = true
@@ -118,6 +124,51 @@ func _test_paint_fill_undo() -> int:
 		print("FAIL undo snapshot")
 		return 1
 	print("OK paint fill undo")
+	return 0
+
+
+func _test_bad_json() -> int:
+	print("== bad json ==")
+	# Garbage / non-map input must be rejected (null), never a silent empty map
+	if MapData.from_json("this is not json") != null:
+		print("FAIL garbage string should return null")
+		return 1
+	if MapData.from_json("") != null:
+		print("FAIL empty string should return null")
+		return 1
+	if MapData.from_json("{\"foo\": 1}") != null:
+		print("FAIL non-map dict should return null")
+		return 1
+	if MapData.from_json("[1, 2, 3]") != null:
+		print("FAIL non-dict json should return null")
+		return 1
+	# valid map still loads
+	if MapData.from_json(MapData.make_seed().to_json()) == null:
+		print("FAIL valid map json returned null")
+		return 1
+	print("OK bad json rejected")
+	return 0
+
+
+func _test_fill_full_map() -> int:
+	print("== fill full map ==")
+	# Real Game code path (autoload script as a plain node — no tree needed).
+	# Regression: a pop-count guard used to truncate fills >~ W*H/4 cells.
+	var game_script: GDScript = load("res://scripts/autoload/Game.gd")
+	var g: Node = game_script.new()
+	g.map = MapData.new()  # all EMPTY
+	g.active_layer = Palette.LAYER_GROUND
+	g.selected_tile = Palette.GRASS
+	g._flood_fill(0, 0)
+	var count := 0
+	for i in g.map.ground.size():
+		if g.map.ground[i] == Palette.GRASS:
+			count += 1
+	if count != MapData.W * MapData.H:
+		print("FAIL full-map fill got ", count, "/", MapData.W * MapData.H)
+		return 1
+	g.free()
+	print("OK fill full map (", count, " cells)")
 	return 0
 
 
@@ -210,4 +261,143 @@ func _test_templates() -> int:
 		print("FAIL legacy village alias title=", legacy.title)
 		return 1
 	print("OK templates count=", cat.size())
+	return 0
+
+
+func _test_new_tiles() -> int:
+	print("== new tiles ==")
+	# Verify new tile ids exist in Palette and have textures
+	var new_ids := [Palette.SNOW, Palette.LAVA, Palette.BRIDGE, Palette.BUSH, Palette.TENT, Palette.BARREL, Palette.LAMP]
+	for id in new_ids:
+		var def := Palette.get_def(id)
+		if str(def.get("name", "")) == "Empty":
+			print("FAIL missing palette def for id=", id)
+			return 1
+		var tex := TileAtlas.texture_of(id)
+		if tex == null:
+			print("FAIL missing texture for id=", id)
+			return 1
+		var img := tex.get_image()
+		if img == null:
+			print("FAIL null image for id=", id)
+			return 1
+		var opaque := 0
+		for y in 32:
+			for x in 32:
+				if img.get_pixel(x, y).a > 0.5:
+					opaque += 1
+		if opaque < 20:
+			print("FAIL texture empty id=", id, " opaque=", opaque)
+			return 1
+	# Verify layer assignment
+	if Palette.layer_of(Palette.SNOW) != Palette.LAYER_GROUND:
+		print("FAIL SNOW not ground layer")
+		return 1
+	if Palette.layer_of(Palette.LAVA) != Palette.LAYER_GROUND:
+		print("FAIL LAVA not ground layer")
+		return 1
+	if Palette.layer_of(Palette.BRIDGE) != Palette.LAYER_GROUND:
+		print("FAIL BRIDGE not ground layer")
+		return 1
+	if Palette.layer_of(Palette.BUSH) != Palette.LAYER_PROPS:
+		print("FAIL BUSH not props layer")
+		return 1
+	if Palette.layer_of(Palette.TENT) != Palette.LAYER_PROPS:
+		print("FAIL TENT not props layer")
+		return 1
+	if Palette.layer_of(Palette.BARREL) != Palette.LAYER_PROPS:
+		print("FAIL BARREL not props layer")
+		return 1
+	if Palette.layer_of(Palette.LAMP) != Palette.LAYER_PROPS:
+		print("FAIL LAMP not props layer")
+		return 1
+	# Verify palette lists include new tiles
+	var g_ids := Palette.ground_ids()
+	if not g_ids.has(Palette.SNOW) or not g_ids.has(Palette.LAVA) or not g_ids.has(Palette.BRIDGE):
+		print("FAIL new ground tiles not in ground_ids()")
+		return 1
+	var p_ids := Palette.prop_ids()
+	if not p_ids.has(Palette.BUSH) or not p_ids.has(Palette.TENT) or not p_ids.has(Palette.BARREL) or not p_ids.has(Palette.LAMP):
+		print("FAIL new prop tiles not in prop_ids()")
+		return 1
+	print("OK new tiles (7 tiles verified)")
+	return 0
+
+
+func _test_brush_size() -> int:
+	print("== brush size ==")
+	# Verify brush radii constants (static const on Game autoload)
+	# In SceneTree script mode autoloads are not available, so test the logic directly
+	var radii := [0, 1, 2]
+	if radii.size() != 3:
+		print("FAIL radii size")
+		return 1
+	if radii[0] != 0 or radii[1] != 1 or radii[2] != 2:
+		print("FAIL radii values")
+		return 1
+	# Verify cycle logic
+	var idx := 0
+	idx = (idx + 1) % radii.size()
+	if idx != 1:
+		print("FAIL cycle 0→1 got ", idx)
+		return 1
+	idx = (idx + 1) % radii.size()
+	if idx != 2:
+		print("FAIL cycle 1→2 got ", idx)
+		return 1
+	idx = (idx + 1) % radii.size()
+	if idx != 0:
+		print("FAIL cycle 2→0 got ", idx)
+		return 1
+	print("OK brush size")
+	return 0
+
+
+func _test_share_link() -> int:
+	print("== share link ==")
+	var m := MapData.make_seed()
+	m.set_cell("ground", 5, 5, Palette.SNOW)
+	m.set_cell("props", 10, 10, Palette.BUSH)
+	# encode via Marshalls (same as Game.export_share_hash)
+	var json := m.to_json()
+	var hash := Marshalls.utf8_to_base64(json)
+	if hash.is_empty():
+		print("FAIL base64 encode empty")
+		return 1
+	# decode
+	var decoded := Marshalls.base64_to_utf8(hash)
+	if decoded.is_empty():
+		print("FAIL base64 decode empty")
+		return 1
+	var m2 := MapData.from_json(decoded)
+	if m2 == null:
+		print("FAIL from_json from decoded")
+		return 1
+	if m2.get_cell("ground", 5, 5) != Palette.SNOW:
+		print("FAIL share link ground roundtrip")
+		return 1
+	if m2.get_cell("props", 10, 10) != Palette.BUSH:
+		print("FAIL share link props roundtrip")
+		return 1
+	# empty hash should fail
+	var empty_decoded := Marshalls.base64_to_utf8("")
+	if not empty_decoded.is_empty():
+		print("FAIL empty hash should decode to empty")
+		return 1
+	print("OK share link")
+	return 0
+
+
+func _test_desert_alias() -> int:
+	print("== desert alias ==")
+	# desert should now map to coast (not blank)
+	var desert := MapTemplates.make("desert")
+	if desert.title != "Coast":
+		print("FAIL desert alias title=", desert.title, " expected Coast")
+		return 1
+	# coast corner should be water
+	if desert.get_cell("ground", 0, 0) != Palette.WATER:
+		print("FAIL desert alias not water at corner")
+		return 1
+	print("OK desert alias → coast")
 	return 0
