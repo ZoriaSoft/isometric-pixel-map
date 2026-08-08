@@ -20,6 +20,7 @@ extends Control
 @onready var btn_png: Button = %BtnPng
 @onready var btn_brush: Button = %BtnBrush
 @onready var btn_share: Button = %BtnShare
+@onready var title_input: LineEdit = %TitleInput
 
 var _file_dialog: FileDialog
 var _save_dialog: FileDialog
@@ -53,6 +54,9 @@ func _ready() -> void:
 		if gv.has_signal("hover_cell_changed"):
 			gv.hover_cell_changed.connect(_on_hover)
 		_grid_on = gv.show_grid
+	if title_input:
+		title_input.text = Game.map.title
+		title_input.text_changed.connect(_on_title_changed)
 	if WebBridge.is_web():
 		WebBridge.ensure_load_hook(_on_web_json_text)
 		WebBridge.block_context_menu()
@@ -61,6 +65,13 @@ func _ready() -> void:
 		toast_label.modulate.a = 0.0
 	_run_splash()
 	_update_brush_label()
+	if not FileAccess.file_exists(Game.AUTOSAVE_PATH):
+		await get_tree().create_timer(1.2).timeout
+		show_toast(L.t("welcome"))
+
+
+func _on_title_changed(new_text: String) -> void:
+	Game.set_title(new_text)
 
 
 func _on_brush_changed() -> void:
@@ -299,6 +310,8 @@ func _on_map_changed() -> void:
 		Game.active_layer,
 		Palette.name_of(Game.selected_tile),
 	]
+	if title_input and title_input.text != Game.map.title:
+		title_input.text = Game.map.title
 
 
 func _on_hover(cell: Vector2i) -> void:
@@ -396,10 +409,10 @@ func _on_load_pressed() -> void:
 
 func _on_save_pressed() -> void:
 	if WebBridge.is_web():
-		WebBridge.download_text("isometric-map.json", Game.export_json_text(), "application/json")
+		WebBridge.download_text("%s.json" % Game.filename_base(), Game.export_json_text(), "application/json")
 		show_toast(L.t("saved"))
 	else:
-		_save_dialog.current_file = "isometric-map.json"
+		_save_dialog.current_file = "%s.json" % Game.filename_base()
 		_save_dialog.popup_centered_ratio(0.6)
 
 
@@ -407,7 +420,7 @@ func _on_export_png_pressed() -> void:
 	if WebBridge.is_web():
 		_export_png_web()
 	else:
-		_png_dialog.current_file = "isometric-map.png"
+		_png_dialog.current_file = "%s.png" % Game.filename_base()
 		_png_dialog.popup_centered_ratio(0.6)
 
 
@@ -417,9 +430,12 @@ func _on_brush_pressed() -> void:
 
 func _on_share_pressed() -> void:
 	if not WebBridge.is_web():
-		show_toast("Share link works in web export only")
+		show_toast(L.t("share_web_only"))
 		return
 	var b64 := Game.export_share_hash()
+	if b64.length() > 6000:
+		show_toast(L.t("share_too_large"))
+		return
 	JavaScriptBridge.eval("""
 (function(){
 	var url = window.location.origin + window.location.pathname + '#m=' + '%s';
@@ -476,7 +492,7 @@ func _on_png_selected(path: String) -> void:
 func _export_png_web() -> void:
 	var img := PngExporter.render_map(Game.map, 2)
 	var buf := img.save_png_to_buffer()
-	WebBridge.download_bytes("isometric-map.png", buf, "image/png")
+	WebBridge.download_bytes("%s.png" % Game.filename_base(), buf, "image/png")
 	show_toast(L.t("exported"))
 
 

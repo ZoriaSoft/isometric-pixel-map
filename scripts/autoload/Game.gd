@@ -288,6 +288,29 @@ func save_settings() -> void:
 		f.close()
 
 
+func set_title(new_title: String) -> void:
+	if map == null:
+		return
+	map.title = new_title if new_title.strip_edges() != "" else "Untitled"
+	_persist_autosave()
+	map_changed.emit()
+
+
+func filename_base() -> String:
+	var base := map.title.to_lower()
+	var out := ""
+	for i in range(base.length()):
+		var ch := base[i]
+		if (ch >= "a" and ch <= "z") or (ch >= "0" and ch <= "9"):
+			out += ch
+		elif ch == " " or ch == "_" or ch == "-":
+			out += "-"
+	while "--" in out:
+		out = out.replace("--", "-")
+	out = out.strip_edges(true, true).trim_prefix("-").trim_suffix("-")
+	return out if out != "" else "isometric-map"
+
+
 ## --- Share link (hash-based) ---
 
 func export_share_hash() -> String:
