@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.6.1+13] — 2026-08-10
+
+### Added
+- **PWA** — installable app (manifest + service worker + 144/180/512 icons); works offline
+- **og:image** — 1200×630 share card (`og-image.png`) + `summary_large_image` twitter card
+
 ## [0.6.0+12] — 2026-08-10
 
 ### Added

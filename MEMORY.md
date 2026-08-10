@@ -2,13 +2,19 @@
 
 ## Son durum (2026-08-10)
 
-**v0.6.0+12 — custom tile upload**
+**v0.6.1+13 — PWA + og:image + Show HN hazır**
 
 ### Live (ücretsiz)
-https://zo.pub/triangle/isometric-pixel-map
+https://zo.pub/triangle/isometric-pixel-map/index.html
 
 ### GitHub (public, MIT)
 https://github.com/ZoriaSoft/isometric-pixel-map
+
+### v0.6.1 değişiklikleri
+- **PWA** — manifest + service worker + ikonlar (144/180/512, SVG'den convert ile üretildi `assets/images/pwa/`); canlıda doğrulandı (service worker activated)
+- **og:image** — `build/web/og-image.png` (1200×630, demo harita); export preset'te `summary_large_image` twitter card
+- **Show HN taslağı güncellendi** (`docs/SHOW_HN.md`) — yeni özellikler + index.html linki
+- Analytics: kullanıcı şimdilik atladı
 
 ### v0.6.0 değişiklikleri
 - **Custom tile upload** — "Tile+" butonu PNG seçici açar (web: file input, desktop: file dialog); görsel paintable tile olarak kaydedilir, JSON'a (`custom_tiles`) yazılır, share link'te taşınır (selftest doğrular)
