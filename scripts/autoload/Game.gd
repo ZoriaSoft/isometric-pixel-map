@@ -1,7 +1,7 @@
 extends Node
 ## Global map state, tools, undo, save/load, export helpers.
 
-const APP_VERSION := "0.3.1+9"
+const APP_VERSION := "0.4.0+10"
 const AUTOSAVE_PATH := "user://autosave.json"
 const MAX_UNDO := 48
 
@@ -313,15 +313,26 @@ func filename_base() -> String:
 
 ## --- Share link (hash-based) ---
 
+## Compressed share hash — full 32×32 map drops from ~6.9KB base64 to ~900 chars.
+## Prefix "z1" marks the compressed format; plain base64 links (v0.3.0) still load.
 func export_share_hash() -> String:
-	var d := map.to_dict()
-	var json := JSON.stringify(d)
-	return Marshalls.utf8_to_base64(json)
+	var packed := map.to_json().to_utf8_buffer()
+	var compressed := packed.compress(FileAccess.COMPRESSION_ZSTD)
+	return "z1" + Marshalls.raw_to_base64(compressed)
 
 
 func import_share_hash(b64: String) -> bool:
 	if b64.is_empty():
 		return false
+	if b64.begins_with("z1"):
+		var raw := Marshalls.base64_to_raw(b64.substr(2))
+		if raw.is_empty():
+			return false
+		var packed := raw.decompress(256 * 1024, FileAccess.COMPRESSION_ZSTD)
+		if packed.is_empty():
+			return false
+		return import_json_text(packed.get_string_from_utf8())
+	# legacy v0.3.0 plain base64
 	var json := Marshalls.base64_to_utf8(b64)
 	if json.is_empty():
 		return false

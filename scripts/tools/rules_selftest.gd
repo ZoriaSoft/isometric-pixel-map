@@ -358,32 +358,44 @@ func _test_share_link() -> int:
 	var m := MapData.make_seed()
 	m.set_cell("ground", 5, 5, Palette.SNOW)
 	m.set_cell("props", 10, 10, Palette.BUSH)
-	# encode via Marshalls (same as Game.export_share_hash)
-	var json := m.to_json()
-	var hash := Marshalls.utf8_to_base64(json)
-	if hash.is_empty():
-		print("FAIL base64 encode empty")
+	# encode via Game.export_share_hash (compressed, z1-prefixed)
+	var game_script: GDScript = load("res://scripts/autoload/Game.gd")
+	var g: Node = game_script.new()
+	g.map = m
+	var hash: String = g.export_share_hash()
+	if not hash.begins_with("z1"):
+		print("FAIL compressed share link missing z1 prefix")
+		g.free()
 		return 1
-	# decode
-	var decoded := Marshalls.base64_to_utf8(hash)
-	if decoded.is_empty():
-		print("FAIL base64 decode empty")
+	if hash.length() > 6000:
+		print("FAIL share link too long: ", hash.length())
+		g.free()
 		return 1
-	var m2 := MapData.from_json(decoded)
-	if m2 == null:
-		print("FAIL from_json from decoded")
+	# decode roundtrip via Game.import_share_hash
+	if not g.import_share_hash(hash):
+		print("FAIL import compressed share link")
+		g.free()
 		return 1
-	if m2.get_cell("ground", 5, 5) != Palette.SNOW:
+	if g.map.get_cell("ground", 5, 5) != Palette.SNOW:
 		print("FAIL share link ground roundtrip")
+		g.free()
 		return 1
-	if m2.get_cell("props", 10, 10) != Palette.BUSH:
+	if g.map.get_cell("props", 10, 10) != Palette.BUSH:
 		print("FAIL share link props roundtrip")
+		g.free()
+		return 1
+	# legacy plain base64 (v0.3.0) must still load
+	var legacy := Marshalls.utf8_to_base64(m.to_json())
+	if not g.import_share_hash(legacy):
+		print("FAIL legacy share link import")
+		g.free()
 		return 1
 	# empty hash should fail
-	var empty_decoded := Marshalls.base64_to_utf8("")
-	if not empty_decoded.is_empty():
-		print("FAIL empty hash should decode to empty")
+	if g.import_share_hash(""):
+		print("FAIL empty hash should fail")
+		g.free()
 		return 1
+	g.free()
 	print("OK share link")
 	return 0
 

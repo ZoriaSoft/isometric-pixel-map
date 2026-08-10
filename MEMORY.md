@@ -1,14 +1,18 @@
 # Isometric Pixel Map — MEMORY
 
-## Son durum (2026-08-04)
+## Son durum (2026-08-10)
 
-**v0.3.1+9 — bug fix + iyileştirme turu**
+**v0.4.0+10 — share link sıkıştırma + publish hazırlığı**
 
 ### Live (ücretsiz)
 https://zo.pub/triangle/isometric-pixel-map
 
 ### GitHub (public, MIT)
 https://github.com/ZoriaSoft/isometric-pixel-map
+
+### v0.4.0 değişiklikleri
+- **Share link tam dolu haritada patlıyordu:** ham base64 hash ~6.9KB olup 6000-char limitini aşıyordu → ZSTD sıkıştırma (`z1` önek): tam dolu harita **6944 → 142 karakter** (~49× küçük). Legacy plain-base64 linkler (v0.3.0) hâlâ yüklenir (selftest doğrular)
+- Tarayıcı smoke test (agent-browser): WebGL render ✓, klavye input ✓, PNG export ✓ (title-based filename), JSON save ✓
 
 ### v0.3.1 düzeltmeleri
 - **Flood fill kesilme hatası:** pop-count guard büyük bölgeleri %25'te durduruyordu → seen-on-push + filled-count guard ile tam 32×32 fill

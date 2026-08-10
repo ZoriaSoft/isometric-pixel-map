@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.4.0+10] — 2026-08-10
+
+### Fixed
+- **Share link broke on full maps** — raw base64 hash hit the 6000-char limit at ~6.9KB for a full 32×32 map, so Share failed with "Map too large". Hash is now ZSTD-compressed (`z1` prefix): full map dropped to **142 chars** (~49× smaller). Legacy plain-base64 links from v0.3.0 still load.
+
 ## [0.3.1+9] — 2026-08-04
 
 ### Fixed
