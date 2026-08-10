@@ -1,7 +1,7 @@
 extends Node
 ## Global map state, tools, undo, save/load, export helpers.
 
-const APP_VERSION := "0.5.0+11"
+const APP_VERSION := "0.6.0+12"
 const AUTOSAVE_PATH := "user://autosave.json"
 const MAX_UNDO := 48
 
@@ -12,6 +12,7 @@ signal map_changed
 signal tool_changed
 signal selection_changed
 signal brush_changed
+signal custom_changed
 
 enum Tool { PEN, ERASE, FILL }
 
@@ -55,10 +56,13 @@ func set_map_size(size: int) -> void:
 
 func new_from_template(template_id: String) -> void:
 	_push_undo()
+	Palette.clear_custom()
+	TileAtlas.clear_custom()
 	map = MapTemplates.make(template_id)
 	_redo.clear()
 	_persist_autosave()
 	map_changed.emit()
+	custom_changed.emit()
 
 
 func set_tool(t: Tool) -> void:
@@ -230,11 +234,58 @@ func import_json_text(text: String) -> bool:
 	if m == null:
 		return false
 	_push_undo()
+	_sync_custom_tiles(m)
 	map = m
 	_redo.clear()
 	_persist_autosave()
 	map_changed.emit()
+	custom_changed.emit()
 	return true
+
+
+## Register any custom tiles carried by the map (load/import path).
+func _sync_custom_tiles(m: MapData) -> void:
+	if m == null or m.custom_tiles.is_empty():
+		Palette.clear_custom()
+		TileAtlas.clear_custom()
+		return
+	Palette.clear_custom()
+	TileAtlas.clear_custom()
+	for id in m.custom_tiles:
+		var e: Dictionary = m.custom_tiles[id]
+		if not (e is Dictionary):
+			continue
+		var layer := str(e.get("layer", Palette.LAYER_GROUND))
+		if layer != Palette.LAYER_GROUND and layer != Palette.LAYER_PROPS:
+			layer = Palette.LAYER_GROUND
+		var color: Color = Color(0.7, 0.7, 0.7)
+		if e.has("color"):
+			color = Color(e["color"])
+		Palette.register_custom(int(id), str(e.get("name", "Custom")), layer, color)
+		TileAtlas.register_custom_texture(int(id), str(e.get("png", "")))
+
+
+## Upload a PNG as a new paintable tile; returns the new tile id or -1 on failure.
+func add_custom_tile(png_b64: String, name: String, layer: String) -> int:
+	if png_b64.is_empty():
+		return -1
+	if layer != Palette.LAYER_GROUND and layer != Palette.LAYER_PROPS:
+		layer = Palette.LAYER_GROUND
+	var id := Palette.next_custom_id()
+	if not TileAtlas.register_custom_texture(id, png_b64):
+		return -1
+	Palette.register_custom(id, name if name.strip_edges() != "" else "Custom", layer, Color(0.7, 0.7, 0.7))
+	if map == null:
+		return -1
+	map.custom_tiles[str(id)] = {
+		"name": name if name.strip_edges() != "" else "Custom",
+		"layer": layer,
+		"png": png_b64,
+	}
+	_persist_autosave()
+	custom_changed.emit()
+	map_changed.emit()
+	return id
 
 
 func save_json_to_path(path: String) -> Error:
@@ -278,6 +329,7 @@ func _try_load_autosave() -> bool:
 	if m == null:
 		# corrupt autosave → fall back to template instead of a blank map
 		return false
+	_sync_custom_tiles(m)
 	map = m
 	return true
 

@@ -18,6 +18,7 @@ func _init() -> void:
 	failed += _test_share_link()
 	failed += _test_desert_alias()
 	failed += _test_map_sizes()
+	failed += _test_custom_tiles()
 	if failed == 0:
 		print("SELFTEST PASS")
 		quit(0)
@@ -479,4 +480,67 @@ func _test_map_sizes() -> int:
 	MapData.W = 32
 	MapData.H = 32
 	print("OK map sizes 48/64")
+	return 0
+
+
+func _test_custom_tiles() -> int:
+	print("== custom tiles ==")
+	Palette.clear_custom()
+	TileAtlas.clear_custom()
+	# build a tiny 32×32 PNG buffer (solid color)
+	var img := Image.create(32, 32, false, Image.FORMAT_RGBA8)
+	img.fill(Color(0.9, 0.1, 0.2))
+	var buf := img.save_png_to_buffer()
+	var b64 := Marshalls.raw_to_base64(buf)
+	# register via Game path
+	var game_script: GDScript = load("res://scripts/autoload/Game.gd")
+	var g: Node = game_script.new()
+	g.map = MapTemplates.make(MapTemplates.ID_BLANK)
+	var id: int = g.add_custom_tile(b64, "My Tile", Palette.LAYER_GROUND)
+	if id <= 0:
+		print("FAIL add_custom_tile returned ", id)
+		g.free()
+		return 1
+	if not Palette.is_custom(id):
+		print("FAIL custom id not registered")
+		g.free()
+		return 1
+	if not Palette.ground_ids().has(id):
+		print("FAIL custom id missing from ground_ids")
+		g.free()
+		return 1
+	var tex := TileAtlas.texture_of(id)
+	if tex == null:
+		print("FAIL custom texture missing")
+		g.free()
+		return 1
+	# JSON roundtrip carries the custom tile (JSON keys are strings)
+	var text: String = g.map.to_json()
+	var m2 := MapData.from_json(text)
+	if not m2.custom_tiles.has(str(id)):
+		print("FAIL custom tile lost in JSON roundtrip")
+		g.free()
+		return 1
+	# register from a map (import path)
+	Palette.clear_custom()
+	TileAtlas.clear_custom()
+	g._sync_custom_tiles(m2)
+	if not Palette.is_custom(id):
+		print("FAIL sync_custom_tiles did not register")
+		g.free()
+		return 1
+	if TileAtlas.texture_of(id) == null:
+		print("FAIL sync custom texture missing")
+		g.free()
+		return 1
+	# png export with custom tile must not crash
+	var out := PngExporter.render_map(m2, 1)
+	if out.get_width() < 32:
+		print("FAIL png with custom tile")
+		g.free()
+		return 1
+	g.free()
+	Palette.clear_custom()
+	TileAtlas.clear_custom()
+	print("OK custom tiles")
 	return 0

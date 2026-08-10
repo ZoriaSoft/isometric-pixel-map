@@ -3,11 +3,74 @@ extends RefCounted
 ## Stable browser file download + JSON open for Godot Web exports.
 
 static var _load_cb: JavaScriptObject = null
+static var _img_cb: JavaScriptObject = null
 static var _on_text: Callable = Callable()
+static var _on_image: Callable = Callable()
 
 
 static func is_web() -> bool:
 	return OS.has_feature("web")
+
+
+## Pick an image file in the browser; returns base64 PNG (data URL stripped).
+static func pick_image(on_data: Callable) -> void:
+	if not is_web():
+		return
+	_on_image = on_data
+	if _img_cb == null:
+		_img_cb = JavaScriptBridge.create_callback(_js_image_callback)
+		var window := JavaScriptBridge.get_interface("window")
+		if window != null:
+			window.ipmOnImage = _img_cb
+	JavaScriptBridge.eval("""
+(function(){
+  if (window.__ipmImagePickerReady) { window.ipmPickImage(); return; }
+  window.__ipmImagePickerReady = true;
+  window.ipmPickImage = function() {
+    var input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/png,image/*';
+    input.style.display = 'none';
+    document.body.appendChild(input);
+    input.onchange = function(e) {
+      var file = e.target.files && e.target.files[0];
+      if (!file) { try { document.body.removeChild(input); } catch(_){} return; }
+      var reader = new FileReader();
+      reader.onload = function() {
+        try {
+          var result = String(reader.result || '');
+          var b64 = result.indexOf(',') >= 0 ? result.slice(result.indexOf(',') + 1) : result;
+          if (window.ipmOnImage) {
+            if (typeof window.ipmOnImage.apply === 'function') {
+              window.ipmOnImage.apply(null, [b64]);
+            } else if (typeof window.ipmOnImage === 'function') {
+              window.ipmOnImage(b64);
+            }
+          }
+        } finally {
+          try { document.body.removeChild(input); } catch(_){}
+        }
+      };
+      reader.onerror = function() {
+        try { document.body.removeChild(input); } catch(_){}
+      };
+      reader.readAsDataURL(file);
+    };
+    input.click();
+  };
+  window.ipmPickImage();
+})();
+""")
+
+
+static func _js_image_callback(args: Array) -> void:
+	if args.is_empty():
+		return
+	var b64 := str(args[0])
+	if b64.length() < 8:
+		return
+	if _on_image.is_valid():
+		_on_image.call(b64)
 
 
 static func ensure_load_hook(on_text: Callable) -> void:

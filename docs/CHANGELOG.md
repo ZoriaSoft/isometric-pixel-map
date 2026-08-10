@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.6.0+12] — 2026-08-10
+
+### Added
+- **Custom tile upload** — "Tile+" button opens a PNG picker (web: file input, desktop: file dialog); the image is registered as a paintable tile, persisted in JSON (`custom_tiles`) and carried through share links
+
 ## [0.5.0+11] — 2026-08-10
 
 ### Added

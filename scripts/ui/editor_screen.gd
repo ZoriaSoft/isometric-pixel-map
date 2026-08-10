@@ -25,6 +25,7 @@ extends Control
 var _file_dialog: FileDialog
 var _save_dialog: FileDialog
 var _png_dialog: FileDialog
+var _load_png_dialog: FileDialog
 var _template_menu: PopupMenu
 var _space_down: bool = false
 var _toast_tween: Tween
@@ -213,25 +214,28 @@ func _build_file_dialogs() -> void:
 	_png_dialog.file_selected.connect(_on_png_selected)
 	add_child(_png_dialog)
 
+	_load_png_dialog = FileDialog.new()
+	_load_png_dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
+	_load_png_dialog.access = FileDialog.ACCESS_FILESYSTEM
+	_load_png_dialog.filters = PackedStringArray(["*.png ; PNG Image"])
+	_load_png_dialog.title = "Load custom tile PNG"
+	_load_png_dialog.file_selected.connect(_on_load_png_selected)
+	add_child(_load_png_dialog)
+
 
 func _build_template_menu() -> void:
 	_template_menu = PopupMenu.new()
 	add_child(_template_menu)
 	_template_ids.clear()
 	_size_ids.clear()
-	var i := 0
-	# size submenu: pick grid size first, then a template
-	var size_menu := PopupMenu.new()
-	size_menu.name = "Size"
-	_template_menu.add_submenu_item("Grid size", "Size")
-	_template_menu.add_child(size_menu)
+	# size items first (id -1/-2/-3, kept apart from template ids)
 	var si := 0
 	for s in Game.MAP_SIZES:
-		size_menu.add_item("%d×%d" % [s, s], si)
+		_template_menu.add_item("Grid size: %d×%d" % [s, s], -1 - si)
 		_size_ids.append(s)
 		si += 1
-	size_menu.id_pressed.connect(_on_size_chosen)
 	_template_menu.add_separator()
+	var i := 0
 	for entry in MapTemplates.catalog():
 		var id := str(entry.get("id", ""))
 		var title := str(entry.get("title", id))
@@ -239,22 +243,25 @@ func _build_template_menu() -> void:
 		_template_menu.add_item("%s — %s" % [title, use], i)
 		_template_ids.append(id)
 		i += 1
-	_template_menu.id_pressed.connect(_on_template_chosen)
-	_sync_size_check(size_menu)
+	_template_menu.id_pressed.connect(_on_menu_item)
+	_sync_size_checks()
 
 
-func _sync_size_check(size_menu: PopupMenu) -> void:
+func _sync_size_checks() -> void:
 	for si in _size_ids.size():
 		var s: int = _size_ids[si]
-		size_menu.set_item_checked(si, s == MapData.W)
+		_template_menu.set_item_checked(si, s == MapData.W)
 
 
-func _on_size_chosen(index: int) -> void:
-	if index < 0 or index >= _size_ids.size():
+func _on_menu_item(index: int) -> void:
+	if index < 0:
+		# size picker (negative ids: -1, -2, -3)
+		var s: int = _size_ids[-index - 1]
+		Game.set_map_size(s)
+		_sync_size_checks()
+		show_toast("Grid: %d×%d" % [s, s])
 		return
-	var s: int = _size_ids[index]
-	Game.set_map_size(s)
-	show_toast("Grid: %d×%d" % [s, s])
+	_on_template_chosen(index)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -477,6 +484,36 @@ func _on_share_pressed() -> void:
 })();
 """ % b64)
 	show_toast(L.t("share_copied"))
+
+
+func _on_tile_pressed() -> void:
+	if WebBridge.is_web():
+		WebBridge.pick_image(_on_custom_image)
+	else:
+		# Desktop: reuse the PNG dialog path via a simple load
+		_load_png_dialog.popup_centered_ratio(0.6)
+
+
+func _on_custom_image(b64: String) -> void:
+	var layer := "ground"
+	var id := Game.add_custom_tile(b64, "Custom Tile", layer)
+	if id > 0:
+		show_toast("%s #%d" % [L.t("tile_added"), id])
+		Game.select_tile(id)
+	else:
+		show_toast(L.t("tile_fail"))
+
+
+func _on_load_png_selected(path: String) -> void:
+	var img := Image.load_from_file(path)
+	if img == null:
+		show_toast(L.t("tile_fail"))
+		return
+	var buf := img.save_png_to_buffer()
+	if buf.is_empty():
+		show_toast(L.t("tile_fail"))
+		return
+	_on_custom_image(Marshalls.raw_to_base64(buf))
 
 
 func _on_about_pressed() -> void:

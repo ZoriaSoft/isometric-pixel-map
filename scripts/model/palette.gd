@@ -29,7 +29,11 @@ const LAMP := 20
 const LAYER_GROUND := "ground"
 const LAYER_PROPS := "props"
 
+## Custom (user-uploaded) tiles start here; built-ins live 0..20.
+const CUSTOM_ID_BASE := 100
+
 static var _defs: Dictionary = {}
+static var _custom_defs: Dictionary = {}
 
 
 static func ensure() -> void:
@@ -73,6 +77,37 @@ static func get_def(id: int) -> Dictionary:
 	return _defs.get(id, _defs[EMPTY])
 
 
+static func is_custom(id: int) -> bool:
+	return id >= CUSTOM_ID_BASE and _custom_defs.has(id)
+
+
+## Reserve the next custom tile id (built-ins are 0..20).
+static func next_custom_id() -> int:
+	var id := CUSTOM_ID_BASE
+	while _defs.has(id):
+		id += 1
+	return id
+
+
+static func custom_ids() -> Array[int]:
+	var out: Array[int] = []
+	for id in _custom_defs:
+		out.append(id)
+	return out
+
+
+static func register_custom(id: int, name: String, layer: String, color: Color) -> void:
+	_register(id, name, layer, color, false)
+	_custom_defs[id] = true
+
+
+## Drop custom tiles when a new map loads (built-ins survive).
+static func clear_custom() -> void:
+	for id in _custom_defs:
+		_defs.erase(id)
+	_custom_defs.clear()
+
+
 static func color_of(id: int) -> Color:
 	return get_def(id).get("color", Color.MAGENTA)
 
@@ -90,11 +125,19 @@ static func is_empty(id: int) -> bool:
 
 
 static func ground_ids() -> Array[int]:
-	return [GRASS, DIRT, SAND, WATER, PATH, STONE, WOOD, SNOW, LAVA, BRIDGE]
+	var out: Array[int] = [GRASS, DIRT, SAND, WATER, PATH, STONE, WOOD, SNOW, LAVA, BRIDGE]
+	for id in _custom_defs:
+		if layer_of(id) == LAYER_GROUND:
+			out.append(id)
+	return out
 
 
 static func prop_ids() -> Array[int]:
-	return [TREE, ROCK, HOUSE, FENCE, FLOWER, CRATE, BUSH, TENT, BARREL, LAMP]
+	var out: Array[int] = [TREE, ROCK, HOUSE, FENCE, FLOWER, CRATE, BUSH, TENT, BARREL, LAMP]
+	for id in _custom_defs:
+		if layer_of(id) == LAYER_PROPS:
+			out.append(id)
+	return out
 
 
 static func all_paintable() -> Array[int]:

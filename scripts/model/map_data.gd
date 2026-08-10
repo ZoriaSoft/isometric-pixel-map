@@ -14,6 +14,8 @@ static var H := 32
 var title: String = "Untitled"
 var ground: PackedInt32Array
 var props: PackedInt32Array
+## Custom user tiles: id -> {"name": String, "layer": String, "png": base64}
+var custom_tiles: Dictionary = {}
 
 func _init() -> void:
 	clear()
@@ -66,6 +68,7 @@ func clone() -> MapData:
 	m.title = title
 	m.ground = ground.duplicate()
 	m.props = props.duplicate()
+	m.custom_tiles = custom_tiles.duplicate(true)
 	return m
 
 
@@ -73,6 +76,7 @@ func apply_snapshot(other: MapData) -> void:
 	title = other.title
 	ground = other.ground.duplicate()
 	props = other.props.duplicate()
+	custom_tiles = other.custom_tiles.duplicate(true)
 
 
 ## Classic 2:1 iso: cell → screen (top of diamond).
@@ -103,6 +107,7 @@ func to_dict() -> Dictionary:
 			"ground": Array(ground),
 			"props": Array(props),
 		},
+		"custom_tiles": custom_tiles,
 	}
 
 
@@ -126,6 +131,9 @@ static func from_dict(d: Dictionary) -> MapData:
 	var layers: Dictionary = d.get("layers", {})
 	_fill_layer(m.ground, layers.get("ground", []))
 	_fill_layer(m.props, layers.get("props", []))
+	m.custom_tiles = d.get("custom_tiles", {})
+	if not (m.custom_tiles is Dictionary):
+		m.custom_tiles = {}
 	return m
 
 

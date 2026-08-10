@@ -7,8 +7,14 @@ func _ready() -> void:
 	_rebuild()
 	Game.selection_changed.connect(_highlight)
 	Game.tool_changed.connect(_highlight)
+	Game.custom_changed.connect(_on_custom_changed)
 	# layer changes emit selection_changed via Game.set_layer → auto-pick fires it
 	set_process(false)
+
+
+func _on_custom_changed() -> void:
+	# a custom tile was added/removed — rebuild palette buttons
+	_rebuild()
 
 
 func _rebuild() -> void:

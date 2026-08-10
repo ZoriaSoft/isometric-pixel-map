@@ -28,6 +28,8 @@ static func ensure() -> void:
 
 
 static func variant_count(id: int) -> int:
+	if Palette.is_custom(id):
+		return PROP_VARIANTS
 	var def := Palette.get_def(id)
 	if str(def.get("layer", Palette.LAYER_GROUND)) == Palette.LAYER_PROPS:
 		return PROP_VARIANTS
@@ -36,6 +38,27 @@ static func variant_count(id: int) -> int:
 			return PROP_VARIANTS
 		_:
 			return GROUND_VARIANTS
+
+
+## Register a user-uploaded PNG as a paintable tile. Returns false on decode failure.
+static func register_custom_texture(id: int, png_b64: String) -> bool:
+	var raw := Marshalls.base64_to_raw(png_b64)
+	if raw.is_empty():
+		return false
+	var img := Image.new()
+	var err := img.load_png_from_buffer(raw)
+	if err != OK:
+		return false
+	if img.get_width() != TEX_W or img.get_height() != TEX_H:
+		img.resize(TEX_W, TEX_H, Image.INTERPOLATE_NEAREST)
+	_textures[_key(id, 0)] = ImageTexture.create_from_image(img)
+	return true
+
+
+## Drop custom textures when a new map loads.
+static func clear_custom() -> void:
+	for id in Palette.custom_ids():
+		_textures.erase(_key(id, 0))
 
 
 ## Deterministic per-cell variant (same cell → same tile on every redraw/export).

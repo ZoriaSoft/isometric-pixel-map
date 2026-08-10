@@ -2,13 +2,18 @@
 
 ## Son durum (2026-08-10)
 
-**v0.5.0+11 — tile varyasyonları + büyük haritalar (32/48/64)**
+**v0.6.0+12 — custom tile upload**
 
 ### Live (ücretsiz)
 https://zo.pub/triangle/isometric-pixel-map
 
 ### GitHub (public, MIT)
 https://github.com/ZoriaSoft/isometric-pixel-map
+
+### v0.6.0 değişiklikleri
+- **Custom tile upload** — "Tile+" butonu PNG seçici açar (web: file input, desktop: file dialog); görsel paintable tile olarak kaydedilir, JSON'a (`custom_tiles`) yazılır, share link'te taşınır (selftest doğrular)
+- Custom tile'lar 100+ id alır; yeni harita yüklenince temizlenir (`Palette.clear_custom` / `TileAtlas.clear_custom`)
+- Tarayıcı smoke: yeni build hata vermiyor (taze session)
 
 ### v0.5.0 değişiklikleri
 - **Harita boyutu 32/48/64** — New-map menüsünde "Grid size" alt menüsü; boyut JSON'a `w/h` olarak yazılır, yüklenen harita kendi boyutunu korur (eski 32×32 dosyalar etkilenmez)

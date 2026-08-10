@@ -42,6 +42,8 @@ var _strings: Dictionary = {
 		"brush_1x": "1×",
 		"brush_3x": "3×",
 		"brush_5x": "5×",
+		"tile_added": "Custom tile added",
+		"tile_fail": "Could not load tile PNG",
 	},
 	"tr": {
 		"app_name": "Isometric Pixel Map",
@@ -83,6 +85,8 @@ var _strings: Dictionary = {
 		"brush_1x": "1×",
 		"brush_3x": "3×",
 		"brush_5x": "5×",
+		"tile_added": "Özel tile eklendi",
+		"tile_fail": "Tile PNG yüklenemedi",
 	},
 }
 
