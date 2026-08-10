@@ -29,6 +29,7 @@ var _template_menu: PopupMenu
 var _space_down: bool = false
 var _toast_tween: Tween
 var _template_ids: Array[String] = []
+var _size_ids: Array[int] = []
 var _grid_on: bool = true
 
 
@@ -217,7 +218,20 @@ func _build_template_menu() -> void:
 	_template_menu = PopupMenu.new()
 	add_child(_template_menu)
 	_template_ids.clear()
+	_size_ids.clear()
 	var i := 0
+	# size submenu: pick grid size first, then a template
+	var size_menu := PopupMenu.new()
+	size_menu.name = "Size"
+	_template_menu.add_submenu_item("Grid size", "Size")
+	_template_menu.add_child(size_menu)
+	var si := 0
+	for s in Game.MAP_SIZES:
+		size_menu.add_item("%d×%d" % [s, s], si)
+		_size_ids.append(s)
+		si += 1
+	size_menu.id_pressed.connect(_on_size_chosen)
+	_template_menu.add_separator()
 	for entry in MapTemplates.catalog():
 		var id := str(entry.get("id", ""))
 		var title := str(entry.get("title", id))
@@ -226,6 +240,21 @@ func _build_template_menu() -> void:
 		_template_ids.append(id)
 		i += 1
 	_template_menu.id_pressed.connect(_on_template_chosen)
+	_sync_size_check(size_menu)
+
+
+func _sync_size_check(size_menu: PopupMenu) -> void:
+	for si in _size_ids.size():
+		var s: int = _size_ids[si]
+		size_menu.set_item_checked(si, s == MapData.W)
+
+
+func _on_size_chosen(index: int) -> void:
+	if index < 0 or index >= _size_ids.size():
+		return
+	var s: int = _size_ids[index]
+	Game.set_map_size(s)
+	show_toast("Grid: %d×%d" % [s, s])
 
 
 func _unhandled_input(event: InputEvent) -> void:

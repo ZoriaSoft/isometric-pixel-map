@@ -1,9 +1,12 @@
 extends Node
 ## Global map state, tools, undo, save/load, export helpers.
 
-const APP_VERSION := "0.4.0+10"
+const APP_VERSION := "0.5.0+11"
 const AUTOSAVE_PATH := "user://autosave.json"
 const MAX_UNDO := 48
+
+## Grid sizes offered in the New-map menu.
+const MAP_SIZES := [32, 48, 64]
 
 signal map_changed
 signal tool_changed
@@ -41,6 +44,13 @@ func _ready() -> void:
 
 func new_map(seeded: bool = true) -> void:
 	new_from_template(MapTemplates.ID_SETTLEMENT if seeded else MapTemplates.ID_BLANK)
+
+
+func set_map_size(size: int) -> void:
+	if size in MAP_SIZES:
+		MapData.W = size
+		MapData.H = size
+		map_changed.emit()
 
 
 func new_from_template(template_id: String) -> void:

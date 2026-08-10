@@ -2,13 +2,19 @@
 
 ## Son durum (2026-08-10)
 
-**v0.4.0+10 — share link sıkıştırma + publish hazırlığı**
+**v0.5.0+11 — tile varyasyonları + büyük haritalar (32/48/64)**
 
 ### Live (ücretsiz)
 https://zo.pub/triangle/isometric-pixel-map
 
 ### GitHub (public, MIT)
 https://github.com/ZoriaSoft/isometric-pixel-map
+
+### v0.5.0 değişiklikleri
+- **Harita boyutu 32/48/64** — New-map menüsünde "Grid size" alt menüsü; boyut JSON'a `w/h` olarak yazılır, yüklenen harita kendi boyutunu korur (eski 32×32 dosyalar etkilenmez)
+- **Tile varyasyonları** — ground tile'lar (grass/dirt/sand/path/stone/wood/snow/lava) 3 deterministik per-cell varyant render eder; büyük haritalar artık "döşeme" gibi görünmez. PNG export ekranla aynı varyantı kullanır
+- **Undo diff gerekmedi:** 64×64'te bile 48 snapshot × 32KB = ~1.5MB — tam clone yeterli
+- Performans: 64×64 PNG export 238ms (32×32: 67ms) — kabul edilebilir
 
 ### v0.4.0 değişiklikleri
 - **Share link tam dolu haritada patlıyordu:** ham base64 hash ~6.9KB olup 6000-char limitini aşıyordu → ZSTD sıkıştırma (`z1` önek): tam dolu harita **6944 → 142 karakter** (~49× küçük). Legacy plain-base64 linkler (v0.3.0) hâlâ yüklenir (selftest doğrular)

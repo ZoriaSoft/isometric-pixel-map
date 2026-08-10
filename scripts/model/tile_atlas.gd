@@ -1,11 +1,16 @@
 class_name TileAtlas
 extends RefCounted
 ## Runtime-generated pixel-art iso tiles (nearest filter). No external PNGs needed.
+## Ground tiles have 3 visual variants (GRASS/DIRT/SAND/PATH/STONE/WOOD/SNOW/LAVA);
+## water/bridge/props stay single so they read as distinct landmarks.
 
 const TEX_W := 32
 const TEX_H := 32  # includes height for props; ground uses lower diamond
 
-static var _textures: Dictionary = {}  # id -> ImageTexture
+const GROUND_VARIANTS := 3
+const PROP_VARIANTS := 1
+
+static var _textures: Dictionary = {}  # id*100+variant -> ImageTexture
 static var _initialized: bool = false
 
 
@@ -15,14 +20,39 @@ static func ensure() -> void:
 	Palette.ensure()
 	_textures.clear()
 	for id in Palette.all_paintable():
-		_textures[id] = _make_texture(id)
-	_textures[Palette.EMPTY] = _make_empty()
+		var n := variant_count(id)
+		for v in n:
+			_textures[_key(id, v)] = _make_texture(id, v)
+	_textures[_key(Palette.EMPTY, 0)] = _make_empty()
 	_initialized = true
 
 
-static func texture_of(id: int) -> Texture2D:
+static func variant_count(id: int) -> int:
+	var def := Palette.get_def(id)
+	if str(def.get("layer", Palette.LAYER_GROUND)) == Palette.LAYER_PROPS:
+		return PROP_VARIANTS
+	match id:
+		Palette.WATER, Palette.BRIDGE:
+			return PROP_VARIANTS
+		_:
+			return GROUND_VARIANTS
+
+
+## Deterministic per-cell variant (same cell → same tile on every redraw/export).
+static func variant_for(c: int, r: int, id: int) -> int:
+	var n := variant_count(id)
+	if n <= 1:
+		return 0
+	return (c * 7 + r * 13 + id * 5) % n
+
+
+static func _key(id: int, variant: int) -> int:
+	return id * 100 + variant
+
+
+static func texture_of(id: int, variant: int = 0) -> Texture2D:
 	ensure()
-	return _textures.get(id, _textures.get(Palette.EMPTY)) as Texture2D
+	return _textures.get(_key(id, variant), _textures.get(_key(Palette.EMPTY, 0))) as Texture2D
 
 
 static func _make_empty() -> ImageTexture:
@@ -31,46 +61,48 @@ static func _make_empty() -> ImageTexture:
 	return ImageTexture.create_from_image(img)
 
 
-static func _make_texture(id: int) -> ImageTexture:
+static func _make_texture(id: int, variant: int = 0) -> ImageTexture:
 	var img := Image.create(TEX_W, TEX_H, false, Image.FORMAT_RGBA8)
 	img.fill(Color(0, 0, 0, 0))
 	var base := Palette.color_of(id)
+	# Derive per-variant detail offsets so speckles/waves shift between variants.
+	var vo := variant * 41
 	match id:
 		Palette.GRASS:
 			_draw_ground_diamond(img, base, base.lightened(0.12), base.darkened(0.18))
-			_speckle(img, base.lightened(0.25), 22, 0xA11)
-			_speckle(img, base.darkened(0.10), 14, 0xB33)
+			_speckle(img, base.lightened(0.25), 22, 0xA11 + vo)
+			_speckle(img, base.darkened(0.10), 14, 0xB33 + vo)
 		Palette.DIRT:
 			_draw_ground_diamond(img, base, base.lightened(0.1), base.darkened(0.2))
-			_speckle(img, base.darkened(0.15), 16, 0xB22)
-			_speckle(img, base.lightened(0.08), 8, 0xC44)
+			_speckle(img, base.darkened(0.15), 16, 0xB22 + vo)
+			_speckle(img, base.lightened(0.08), 8, 0xC44 + vo)
 		Palette.SAND:
 			_draw_ground_diamond(img, base, base.lightened(0.15), base.darkened(0.12))
-			_speckle(img, Color(0.95, 0.88, 0.6), 14, 0xC33)
-			_speckle(img, base.darkened(0.08), 10, 0xD55)
+			_speckle(img, Color(0.95, 0.88, 0.6), 14, 0xC33 + vo)
+			_speckle(img, base.darkened(0.08), 10, 0xD55 + vo)
 		Palette.WATER:
 			_draw_ground_diamond(img, base, base.lightened(0.2), base.darkened(0.25))
 			_wave_lines(img, base.lightened(0.35))
 			_wave_lines(img, base.lightened(0.20), 4.0)
 		Palette.PATH:
 			_draw_ground_diamond(img, base, base.lightened(0.08), base.darkened(0.15))
-			_speckle(img, base.darkened(0.25), 10, 0xD44)
-			_speckle(img, base.lightened(0.10), 6, 0xE66)
+			_speckle(img, base.darkened(0.25), 10, 0xD44 + vo)
+			_speckle(img, base.lightened(0.10), 6, 0xE66 + vo)
 		Palette.STONE:
 			_draw_ground_diamond(img, base, base.lightened(0.12), base.darkened(0.22))
 			_stone_cracks(img, base.darkened(0.3))
-			_speckle(img, base.lightened(0.08), 6, 0xF22)
+			_speckle(img, base.lightened(0.08), 6, 0xF22 + vo)
 		Palette.WOOD:
 			_draw_ground_diamond(img, base, base.lightened(0.1), base.darkened(0.2))
-			_wood_grain(img, base.darkened(0.25))
+			_wood_grain(img, base.darkened(0.25), 3.0 + float(variant % 2))
 			_wood_grain(img, base.lightened(0.08), 6.0)
 		Palette.SNOW:
 			_draw_ground_diamond(img, base, base.lightened(0.05), base.darkened(0.08))
-			_speckle(img, Color(1, 1, 1), 16, 0xA77)
-			_speckle(img, base.darkened(0.05), 8, 0xB99)
+			_speckle(img, Color(1, 1, 1), 16, 0xA77 + vo)
+			_speckle(img, base.darkened(0.05), 8, 0xB99 + vo)
 		Palette.LAVA:
 			_draw_ground_diamond(img, base, base.lightened(0.15), base.darkened(0.2))
-			_lava_cracks(img, base.lightened(0.3))
+			_lava_cracks(img, base.lightened(0.3), float(variant))
 		Palette.BRIDGE:
 			_draw_ground_diamond(img, base, base.lightened(0.1), base.darkened(0.2))
 			_wood_grain(img, base.darkened(0.25))
@@ -176,19 +208,19 @@ static func _wood_grain(img: Image, c: Color, spacing: float = 3.0) -> void:
 				img.set_pixel(x, y, c)
 
 
-static func _lava_cracks(img: Image, c: Color) -> void:
-	# glowing cracks in lava
+static func _lava_cracks(img: Image, c: Color, off: float = 0.0) -> void:
+	# glowing cracks in lava (phase offset gives variant variation)
 	for x in range(8, 24):
-		var y := 21 + int(sin(x * 0.5) * 2)
+		var y := 21 + int(sin(x * 0.5 + off * 2.0) * 2)
 		if img.get_pixel(x, y).a > 0.1:
 			img.set_pixel(x, y, c)
 	for x in range(10, 22):
-		var y := 26 + int(cos(x * 0.4) * 1.5)
+		var y := 26 + int(cos(x * 0.4 + off * 1.7) * 1.5)
 		if img.get_pixel(x, y).a > 0.1:
 			img.set_pixel(x, y, c.lightened(0.1))
 	# bright spots
-	img.set_pixel(14, 23, c.lightened(0.3))
-	img.set_pixel(19, 25, c.lightened(0.25))
+	img.set_pixel(14 + (int(off) % 5), 23, c.lightened(0.3))
+	img.set_pixel(19 - (int(off) % 4), 25, c.lightened(0.25))
 
 
 static func _draw_prop_tree(img: Image) -> void:

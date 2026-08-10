@@ -9,6 +9,7 @@ func _init() -> void:
 	failed += _test_paint_fill_undo()
 	failed += _test_fill_full_map()
 	failed += _test_atlas()
+	failed += _test_tile_variants()
 	failed += _test_png()
 	failed += _test_seed()
 	failed += _test_templates()
@@ -16,6 +17,7 @@ func _init() -> void:
 	failed += _test_brush_size()
 	failed += _test_share_link()
 	failed += _test_desert_alias()
+	failed += _test_map_sizes()
 	if failed == 0:
 		print("SELFTEST PASS")
 		quit(0)
@@ -46,6 +48,40 @@ func _test_atlas() -> int:
 			print("FAIL texture empty id=", id, " opaque=", opaque)
 			return 1
 	print("OK tile atlas")
+	return 0
+
+
+func _test_tile_variants() -> int:
+	print("== tile variants ==")
+	TileAtlas.ensure()
+	# ground tiles (except water/bridge) should have 3 variants, each non-empty
+	for id in Palette.ground_ids():
+		var n := TileAtlas.variant_count(id)
+		for v in n:
+			var tex := TileAtlas.texture_of(id, v)
+			if tex == null:
+				print("FAIL missing variant id=", id, " v=", v)
+				return 1
+			var img := tex.get_image()
+			var opaque := 0
+			for y in 32:
+				for x in 32:
+					if img.get_pixel(x, y).a > 0.5:
+						opaque += 1
+			if opaque < 20:
+				print("FAIL empty variant id=", id, " v=", v)
+				return 1
+	# deterministic per-cell selection (same cell → same variant)
+	var a := TileAtlas.variant_for(3, 4, Palette.GRASS)
+	if a != TileAtlas.variant_for(3, 4, Palette.GRASS):
+		print("FAIL variant_for not deterministic")
+		return 1
+	# props have exactly 1 variant
+	for id in Palette.prop_ids():
+		if TileAtlas.variant_for(0, 0, id) != 0:
+			print("FAIL props should have 1 variant id=", id)
+			return 1
+	print("OK tile variants")
 	return 0
 
 
@@ -412,4 +448,35 @@ func _test_desert_alias() -> int:
 		print("FAIL desert alias not water at corner")
 		return 1
 	print("OK desert alias → coast")
+	return 0
+
+
+func _test_map_sizes() -> int:
+	print("== map sizes ==")
+	# 48×48 and 64×64 maps: create, paint, JSON roundtrip preserves size
+	for size in [48, 64]:
+		MapData.W = size
+		MapData.H = size
+		var m := MapTemplates.make(MapTemplates.ID_SETTLEMENT)
+		if m.ground.size() != size * size:
+			print("FAIL template size ", size, " got ", m.ground.size())
+			return 1
+		m.set_cell("ground", size / 2, size / 2, Palette.DIRT)
+		var text := m.to_json()
+		var m2 := MapData.from_json(text)
+		if m2 == null or m2.ground.size() != size * size:
+			print("FAIL roundtrip size ", size)
+			return 1
+		if m2.get_cell("ground", size / 2, size / 2) != Palette.DIRT:
+			print("FAIL roundtrip cell size ", size)
+			return 1
+		# png export at larger size must not blow up
+		var img := PngExporter.render_map(m2, 1)
+		if img.get_width() < size:
+			print("FAIL png width ", size)
+			return 1
+	# restore default for later tests
+	MapData.W = 32
+	MapData.H = 32
+	print("OK map sizes 48/64")
 	return 0

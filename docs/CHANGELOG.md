@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.5.0+11] — 2026-08-10
+
+### Added
+- **Map sizes 32/48/64** — New-map menu now has a "Grid size" submenu; size is stored in JSON (`w`/`h`) so loaded maps keep their own size (legacy 32×32 files unaffected)
+- **Tile variants** — ground tiles (grass/dirt/sand/path/stone/wood/snow/lava) render with 3 deterministic per-cell variants, so large maps no longer look tiled. PNG export matches the on-screen variant selection
+
 ## [0.4.0+10] — 2026-08-10
 
 ### Fixed

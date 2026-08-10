@@ -1,12 +1,15 @@
 class_name MapData
 extends RefCounted
-## 32×32 isometric map — ground + props layers.
+## Isometric map — ground + props layers. Size is settable at load/template time
+## (default 32×32; legacy JSON carries its own w/h).
 
 const VERSION := 1
-const W := 32
-const H := 32
 const TILE_W := 32
 const TILE_H := 16
+
+## Mutable so from_dict/new_from_template can pick the grid size at runtime.
+static var W := 32
+static var H := 32
 
 var title: String = "Untitled"
 var ground: PackedInt32Array
@@ -110,9 +113,15 @@ func to_json() -> String:
 static func from_dict(d: Dictionary) -> MapData:
 	if not d.has("layers"):
 		return null
+	var w := int(d.get("w", 32))
+	var h := int(d.get("h", 32))
+	# Guard against absurd sizes from corrupt/foreign files.
+	if w < 8 or h < 8 or w > 128 or h > 128:
+		w = 32
+		h = 32
+	W = w
+	H = h
 	var m := MapData.new()
-	if int(d.get("w", W)) != W or int(d.get("h", H)) != H:
-		push_warning("MapData: size mismatch, keeping %dx%d" % [W, H])
 	m.title = str(d.get("title", "Untitled"))
 	var layers: Dictionary = d.get("layers", {})
 	_fill_layer(m.ground, layers.get("ground", []))

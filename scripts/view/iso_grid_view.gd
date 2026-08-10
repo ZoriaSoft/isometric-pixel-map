@@ -21,12 +21,22 @@ var _touches: Dictionary = {}  # index -> Vector2
 func _ready() -> void:
 	TileAtlas.ensure()
 	_camera = get_parent().get_node_or_null("Camera2D") as Camera2D
-	Game.map_changed.connect(queue_redraw)
+	Game.map_changed.connect(_on_map_changed)
 	_rebuild_order()
 	var mid := MapData.cell_to_screen(MapData.W / 2, MapData.H / 2)
 	origin = Vector2.ZERO
 	if _camera:
 		_camera.position = mid + Vector2(0, MapData.TILE_H)
+	queue_redraw()
+
+
+func _on_map_changed() -> void:
+	# grid size may have changed (new map at 48/64) — rebuild the draw order
+	if _order_cache.size() != MapData.W * MapData.H:
+		_rebuild_order()
+		if _camera:
+			var mid := MapData.cell_to_screen(MapData.W / 2, MapData.H / 2)
+			_camera.position = mid + Vector2(0, MapData.TILE_H)
 	queue_redraw()
 
 
@@ -49,7 +59,7 @@ func _draw() -> void:
 	for cell in _order_cache:
 		var base := MapData.cell_to_screen(cell.x, cell.y) + origin
 		var gid := m.get_cell(Palette.LAYER_GROUND, cell.x, cell.y)
-		_draw_tile(base, gid)
+		_draw_tile(base, gid, cell)
 		if show_grid:
 			_draw_diamond_outline(base, Color(1, 1, 1, 0.08))
 	# props
@@ -58,7 +68,7 @@ func _draw() -> void:
 		if pid == Palette.EMPTY:
 			continue
 		var base2 := MapData.cell_to_screen(cell.x, cell.y) + origin
-		_draw_tile(base2, pid)
+		_draw_tile(base2, pid, cell)
 	# hover ghost — brush footprint (fill tool fills a region, so show 1 cell)
 	if m.in_bounds(hover_cell.x, hover_cell.y):
 		var hb := MapData.cell_to_screen(hover_cell.x, hover_cell.y) + origin
@@ -78,10 +88,11 @@ func _draw() -> void:
 				_draw_brush_footprint(hover_cell, radius, accent, Color())
 
 
-func _draw_tile(top: Vector2, id: int) -> void:
+func _draw_tile(top: Vector2, id: int, cell: Vector2i = Vector2i(-1, -1)) -> void:
 	if id == Palette.EMPTY:
 		return
-	var tex := TileAtlas.texture_of(id)
+	var variant := 0 if cell.x < 0 else TileAtlas.variant_for(cell.x, cell.y, id)
+	var tex := TileAtlas.texture_of(id, variant)
 	if tex == null:
 		return
 	# Atlas: diamond top is at y=16 in 32×32 → shift up by 16 so it meets `top`.

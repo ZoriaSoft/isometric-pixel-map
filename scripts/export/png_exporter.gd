@@ -54,28 +54,30 @@ static func render_map_software(map: MapData, scale: int = 2) -> Image:
 		var gid := map.get_cell(Palette.LAYER_GROUND, cell.x, cell.y)
 		if gid == Palette.EMPTY:
 			continue
-		_blit_tile_cached(img, p, min_x, min_y, scale, gid, tile_cache)
+		_blit_tile_cached(img, p, min_x, min_y, scale, gid, cell, tile_cache)
 	# props pass
 	for cell in order:
 		var pid := map.get_cell(Palette.LAYER_PROPS, cell.x, cell.y)
 		if pid == Palette.EMPTY:
 			continue
 		var p2 := MapData.cell_to_screen(cell.x, cell.y)
-		_blit_tile_cached(img, p2, min_x, min_y, scale, pid, tile_cache)
+		_blit_tile_cached(img, p2, min_x, min_y, scale, pid, cell, tile_cache)
 	return img
 
 
-static func _blit_tile_cached(dst: Image, top: Vector2, min_x: float, min_y: float, scale: int, id: int, cache: Dictionary) -> void:
-	var tex := TileAtlas.texture_of(id)
+static func _blit_tile_cached(dst: Image, top: Vector2, min_x: float, min_y: float, scale: int, id: int, cell: Vector2i, cache: Dictionary) -> void:
+	var variant := TileAtlas.variant_for(cell.x, cell.y, id)
+	var tex := TileAtlas.texture_of(id, variant)
 	if tex == null:
 		return
 	var src: Image = tex.get_image()
 	if src == null:
 		return
-	# Get or create scaled version
+	# Get or create scaled version (cache key includes variant)
+	var ckey := id * 100 + variant
 	var scaled: Image
-	if cache.has(id):
-		scaled = cache[id]
+	if cache.has(ckey):
+		scaled = cache[ckey]
 	else:
 		if scale == 1:
 			scaled = src
@@ -91,7 +93,7 @@ static func _blit_tile_cached(dst: Image, top: Vector2, min_x: float, min_y: flo
 					for dy in scale:
 						for dx in scale:
 							scaled.set_pixel(sx * scale + dx, sy * scale + dy, c)
-		cache[id] = scaled
+		cache[ckey] = scaled
 	# Composite using blend_rect (native C++ alpha blend)
 	var ox := int((top.x - 16 - min_x) * scale)
 	var oy := int((top.y - 16 - min_y) * scale)
