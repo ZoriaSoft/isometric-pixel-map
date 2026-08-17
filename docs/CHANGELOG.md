@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.7.0+14] — 2026-08-17
+
+### Added
+- **"Pixel Atelier" tema** — Luxury/Refined chrome: sıcak obsidyen tuval + şampanya-altını accent
+- **Fontlar:** Fraunces (serif display, brand/section) + JetBrains Mono (data) — bundled, OFL lisans
+- **Brand mark:** elmas logo (ISO·MAP) + splash diamond spin-in animasyonu
+- Section label stili (letterspaced small-caps) — TILES başlığı vb.
+- `docs/DESIGN.md` v0.7.0 yönü (palet/tipografi/brand) güncellendi
+
+### Changed
+- `theme_apply.gd`: tüm editor chrome yeniden stillendi (panel/buton/tooltip/lineedit)
+- `export_presets.cfg`: theme-color + PWA background `#12100D`
+- `project.godot`: clear color `#12100D`
+
+### Fixed
+- _yok_
+
 ## [0.6.1+13] — 2026-08-10
 
 ### Added

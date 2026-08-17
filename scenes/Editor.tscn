@@ -1,8 +1,11 @@
-[gd_scene load_steps=4 format=3 uid="uid://ipm_editor"]
+[gd_scene load_steps=7 format=3 uid="uid://ipm_editor"]
 
 [ext_resource type="Script" path="res://scripts/ui/editor_screen.gd" id="1_editor"]
 [ext_resource type="Script" path="res://scripts/view/iso_grid_view.gd" id="2_grid"]
 [ext_resource type="Script" path="res://scripts/ui/palette_bar.gd" id="3_palette"]
+[ext_resource type="FontFile" path="res://assets/fonts/fraunces-600.ttf" id="4_font"]
+[ext_resource type="FontFile" path="res://assets/fonts/fraunces-500.ttf" id="5_font"]
+[ext_resource type="FontFile" path="res://assets/fonts/jetbrains-mono-400.ttf" id="6_font"]
 
 [node name="Editor" type="Control"]
 layout_mode = 3
@@ -23,70 +26,108 @@ zoom = Vector2(1.2, 1.2)
 unique_name_in_owner = true
 script = ExtResource("2_grid")
 
-[node name="UI" type="CanvasLayer" parent="."]
-layer = 10
+[node name="UI" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
 
 [node name="TopBar" type="PanelContainer" parent="UI"]
 anchors_preset = 10
 anchor_right = 1.0
-offset_bottom = 52.0
+offset_bottom = 54.0
 grow_horizontal = 2
 
 [node name="Margin" type="MarginContainer" parent="UI/TopBar"]
 layout_mode = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 6
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 6
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 7
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 7
 
 [node name="HBox" type="HBoxContainer" parent="UI/TopBar/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 9
 
-[node name="Brand" type="Label" parent="UI/TopBar/Margin/HBox"]
+[node name="Brand" type="HBoxContainer" parent="UI/TopBar/Margin/HBox"]
 layout_mode = 2
-text = "Iso"
-theme_override_colors/font_color = Color(0.24, 0.86, 0.59, 1)
+theme_override_constants/separation = 6
+
+[node name="BrandMarkWrap" type="Control" parent="UI/TopBar/Margin/HBox/Brand"]
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="BrandMark" type="ColorRect" parent="UI/TopBar/Margin/HBox/Brand/BrandMarkWrap"]
+custom_minimum_size = Vector2(11, 11)
+offset_left = 3.5
+offset_top = 3.5
+offset_right = 14.5
+offset_bottom = 14.5
+rotation = 0.785398
+pivot_offset = Vector2(5.5, 5.5)
+color = Color(0.788, 0.663, 0.38, 1)
+
+[node name="BrandMarkInner" type="ColorRect" parent="UI/TopBar/Margin/HBox/Brand/BrandMarkWrap"]
+custom_minimum_size = Vector2(4, 4)
+offset_left = 7.0
+offset_top = 7.0
+offset_right = 11.0
+offset_bottom = 11.0
+rotation = 0.785398
+pivot_offset = Vector2(2, 2)
+color = Color(0.0706, 0.0627, 0.0509, 1)
+
+[node name="BrandLabel" type="Label" parent="UI/TopBar/Margin/HBox/Brand"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("4_font")
 theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.788, 0.663, 0.38, 1)
+theme_override_constants/spacing_glyph = 2
+text = "ISO·MAP"
+vertical_alignment = 1
 
 [node name="SepBrand" type="VSeparator" parent="UI/TopBar/Margin/HBox"]
 layout_mode = 2
 
 [node name="Tools" type="HBoxContainer" parent="UI/TopBar/Margin/HBox"]
 layout_mode = 2
-theme_override_constants/separation = 3
+theme_override_constants/separation = 2
 
 [node name="BtnPen" type="Button" parent="UI/TopBar/Margin/HBox/Tools"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(36, 32)
+custom_minimum_size = Vector2(48, 30)
 layout_mode = 2
 tooltip_text = "Pen (P)"
-text = "P"
+text = "Pen"
 
 [node name="BtnErase" type="Button" parent="UI/TopBar/Margin/HBox/Tools"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(36, 32)
+custom_minimum_size = Vector2(52, 30)
 layout_mode = 2
 tooltip_text = "Erase (E)"
-text = "E"
+text = "Erase"
 
 [node name="BtnFill" type="Button" parent="UI/TopBar/Margin/HBox/Tools"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(36, 32)
+custom_minimum_size = Vector2(44, 30)
 layout_mode = 2
 tooltip_text = "Fill (F)"
-text = "F"
+text = "Fill"
 
 [node name="SepTools" type="VSeparator" parent="UI/TopBar/Margin/HBox"]
 layout_mode = 2
 
 [node name="Brush" type="HBoxContainer" parent="UI/TopBar/Margin/HBox"]
 layout_mode = 2
-theme_override_constants/separation = 3
+theme_override_constants/separation = 2
 
 [node name="BtnBrush" type="Button" parent="UI/TopBar/Margin/HBox/Brush"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(40, 32)
+custom_minimum_size = Vector2(42, 30)
 layout_mode = 2
 tooltip_text = "Brush size (B)"
 text = "1×"
@@ -96,42 +137,42 @@ layout_mode = 2
 
 [node name="History" type="HBoxContainer" parent="UI/TopBar/Margin/HBox"]
 layout_mode = 2
-theme_override_constants/separation = 3
+theme_override_constants/separation = 2
 
 [node name="BtnUndo" type="Button" parent="UI/TopBar/Margin/HBox/History"]
-custom_minimum_size = Vector2(36, 32)
+custom_minimum_size = Vector2(56, 30)
 layout_mode = 2
 tooltip_text = "Undo (Ctrl+Z)"
-text = "↶"
+text = "Undo"
 
 [node name="BtnRedo" type="Button" parent="UI/TopBar/Margin/HBox/History"]
-custom_minimum_size = Vector2(36, 32)
+custom_minimum_size = Vector2(54, 30)
 layout_mode = 2
 tooltip_text = "Redo (Ctrl+Y)"
-text = "↷"
+text = "Redo"
 
 [node name="SepHist" type="VSeparator" parent="UI/TopBar/Margin/HBox"]
 layout_mode = 2
 
 [node name="View" type="HBoxContainer" parent="UI/TopBar/Margin/HBox"]
 layout_mode = 2
-theme_override_constants/separation = 3
+theme_override_constants/separation = 2
 
 [node name="BtnZoomOut" type="Button" parent="UI/TopBar/Margin/HBox/View"]
-custom_minimum_size = Vector2(36, 32)
+custom_minimum_size = Vector2(34, 30)
 layout_mode = 2
 tooltip_text = "Zoom out (-)"
 text = "−"
 
 [node name="BtnZoomIn" type="Button" parent="UI/TopBar/Margin/HBox/View"]
-custom_minimum_size = Vector2(36, 32)
+custom_minimum_size = Vector2(34, 30)
 layout_mode = 2
 tooltip_text = "Zoom in (+)"
 text = "+"
 
 [node name="BtnGrid" type="Button" parent="UI/TopBar/Margin/HBox/View"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(36, 32)
+custom_minimum_size = Vector2(34, 30)
 layout_mode = 2
 tooltip_text = "Toggle grid (G)"
 text = "#"
@@ -145,14 +186,14 @@ theme_override_constants/separation = 2
 
 [node name="BtnGround" type="Button" parent="UI/TopBar/Margin/HBox/Layers"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(64, 32)
+custom_minimum_size = Vector2(64, 30)
 layout_mode = 2
 tooltip_text = "Ground layer (1)"
 text = "Ground"
 
 [node name="BtnProps" type="Button" parent="UI/TopBar/Margin/HBox/Layers"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(56, 32)
+custom_minimum_size = Vector2(58, 30)
 layout_mode = 2
 tooltip_text = "Props layer (2)"
 text = "Props"
@@ -162,12 +203,12 @@ layout_mode = 2
 
 [node name="File" type="HBoxContainer" parent="UI/TopBar/Margin/HBox"]
 layout_mode = 2
-theme_override_constants/separation = 4
+theme_override_constants/separation = 3
 
 [node name="BtnNew" type="Button" parent="UI/TopBar/Margin/HBox/File"]
 layout_mode = 2
 tooltip_text = "Start from a job-driven template"
-text = "Maps ▾"
+text = "Maps"
 
 [node name="BtnLoad" type="Button" parent="UI/TopBar/Margin/HBox/File"]
 layout_mode = 2
@@ -198,23 +239,20 @@ tooltip_text = "Copy share link"
 text = "Share"
 
 [node name="BtnAbout" type="Button" parent="UI/TopBar/Margin/HBox"]
-custom_minimum_size = Vector2(36, 32)
-layout_mode = 2
-tooltip_text = "About & shortcuts"
-text = "?"
-custom_minimum_size = Vector2(36, 32)
+custom_minimum_size = Vector2(32, 30)
 layout_mode = 2
 tooltip_text = "About & shortcuts"
 text = "?"
 
 [node name="TitleInput" type="LineEdit" parent="UI/TopBar/Margin/HBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(140, 32)
+custom_minimum_size = Vector2(120, 30)
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Untitled"
 placeholder_text = "Map title..."
 tooltip_text = "Map title (used for PNG/JSON filename)"
+theme_override_fonts/font = ExtResource("6_font")
 theme_override_font_sizes/font_size = 12
 
 [node name="Spacer" type="Control" parent="UI/TopBar/Margin/HBox"]
@@ -224,51 +262,53 @@ size_flags_horizontal = 3
 [node name="StatusLabel" type="Label" parent="UI/TopBar/Margin/HBox"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_fonts/font = ExtResource("6_font")
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.56, 0.52, 0.44, 1)
 text = "ready"
-theme_override_colors/font_color = Color(0.55, 0.60, 0.66, 1)
-theme_override_font_sizes/font_size = 12
+vertical_alignment = 1
 
 [node name="BottomBar" type="PanelContainer" parent="UI"]
 anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -72.0
+offset_top = -84.0
 grow_horizontal = 2
 grow_vertical = 0
 
 [node name="Margin" type="MarginContainer" parent="UI/BottomBar"]
 layout_mode = 2
-theme_override_constants/margin_left = 12
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 12
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 9
+theme_override_constants/margin_right = 14
 theme_override_constants/margin_bottom = 10
 
 [node name="VBox" type="VBoxContainer" parent="UI/BottomBar/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 8
 
 [node name="PaletteHeader" type="HBoxContainer" parent="UI/BottomBar/Margin/VBox"]
 layout_mode = 2
 
 [node name="PaletteLabel" type="Label" parent="UI/BottomBar/Margin/VBox/PaletteHeader"]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Tiles"
-theme_override_colors/font_color = Color(0.55, 0.60, 0.66, 1)
-theme_override_font_sizes/font_size = 11
 
 [node name="HintLabel" type="Label" parent="UI/BottomBar/Margin/VBox/PaletteHeader"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Paint · Scroll zoom · RMB / Space pan"
-theme_override_colors/font_color = Color(0.45, 0.50, 0.55, 1)
+theme_override_fonts/font = ExtResource("6_font")
 theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.56, 0.52, 0.44, 1)
 horizontal_alignment = 2
 
 [node name="PaletteBar" type="HBoxContainer" parent="UI/BottomBar/Margin/VBox"]
 layout_mode = 2
-theme_override_constants/separation = 4
+theme_override_constants/separation = 5
 script = ExtResource("3_palette")
 
 [node name="Dimmer" type="ColorRect" parent="UI"]
@@ -290,29 +330,51 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -260.0
-offset_top = -160.0
-offset_right = 260.0
-offset_bottom = 160.0
+offset_left = -300.0
+offset_top = -190.0
+offset_right = 300.0
+offset_bottom = 190.0
 grow_horizontal = 2
 grow_vertical = 2
 
 [node name="Margin" type="MarginContainer" parent="UI/AboutPanel"]
 layout_mode = 2
-theme_override_constants/margin_left = 20
-theme_override_constants/margin_top = 16
-theme_override_constants/margin_right = 20
-theme_override_constants/margin_bottom = 16
+theme_override_constants/margin_left = 26
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 26
+theme_override_constants/margin_bottom = 20
 
 [node name="VBox" type="VBoxContainer" parent="UI/AboutPanel/Margin"]
 layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="AboutBrand" type="HBoxContainer" parent="UI/AboutPanel/Margin/VBox"]
+layout_mode = 2
+alignment = 1
 theme_override_constants/separation = 10
 
-[node name="AboutTitle" type="Label" parent="UI/AboutPanel/Margin/VBox"]
+[node name="AboutMarkWrap" type="Control" parent="UI/AboutPanel/Margin/VBox/AboutBrand"]
+custom_minimum_size = Vector2(22, 22)
 layout_mode = 2
+mouse_filter = 2
+
+[node name="AboutMark" type="ColorRect" parent="UI/AboutPanel/Margin/VBox/AboutBrand/AboutMarkWrap"]
+custom_minimum_size = Vector2(13, 13)
+offset_left = 4.5
+offset_top = 4.5
+offset_right = 17.5
+offset_bottom = 17.5
+rotation = 0.785398
+pivot_offset = Vector2(6.5, 6.5)
+color = Color(0.788, 0.663, 0.38, 1)
+
+[node name="AboutTitle" type="Label" parent="UI/AboutPanel/Margin/VBox/AboutBrand"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.788, 0.663, 0.38, 1)
 text = "Isometric Pixel Map"
-horizontal_alignment = 1
-theme_override_colors/font_color = Color(0.24, 0.86, 0.59, 1)
+vertical_alignment = 1
 
 [node name="AboutBody" type="Label" parent="UI/AboutPanel/Margin/VBox"]
 unique_name_in_owner = true
@@ -320,7 +382,13 @@ layout_mode = 2
 text = "Retro isometric pixel map editor."
 autowrap_mode = 3
 horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.85, 0.8, 0.72, 1)
 theme_override_font_sizes/font_size = 13
+
+[node name="AboutHair" type="ColorRect" parent="UI/AboutPanel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 1)
+size_flags_horizontal = 4
+color = Color(0.788, 0.663, 0.38, 0.25)
 
 [node name="AboutShortcuts" type="Label" parent="UI/AboutPanel/Margin/VBox"]
 unique_name_in_owner = true
@@ -328,11 +396,13 @@ layout_mode = 2
 text = "P pen · E erase · F fill · G grid · 1/2 layers · Ctrl+Z/Y undo/redo"
 autowrap_mode = 3
 horizontal_alignment = 1
-theme_override_colors/font_color = Color(0.55, 0.60, 0.66, 1)
+theme_override_fonts/font = ExtResource("6_font")
 theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.56, 0.52, 0.44, 1)
 
 [node name="AboutClose" type="Button" parent="UI/AboutPanel/Margin/VBox"]
 layout_mode = 2
+size_flags_horizontal = 4
 text = "Close"
 
 [node name="Splash" type="ColorRect" parent="UI"]
@@ -343,37 +413,77 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-color = Color(0.043, 0.059, 0.078, 1)
+color = Color(0.0706, 0.0627, 0.0509, 1)
 
-[node name="SplashLabel" type="Label" parent="UI/Splash"]
-unique_name_in_owner = true
+[node name="SplashVBox" type="VBoxContainer" parent="UI/Splash"]
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -200.0
-offset_top = -28.0
-offset_right = 200.0
-offset_bottom = 12.0
-theme_override_colors/font_color = Color(0.24, 0.86, 0.59, 1)
-theme_override_font_sizes/font_size = 26
+offset_left = -260.0
+offset_top = -130.0
+offset_right = 260.0
+offset_bottom = 110.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="SplashMarkWrap" type="Control" parent="UI/Splash/SplashVBox"]
+custom_minimum_size = Vector2(44, 44)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+
+[node name="SplashMark" type="ColorRect" parent="UI/Splash/SplashVBox/SplashMarkWrap"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(26, 26)
+offset_left = 9.0
+offset_top = 9.0
+offset_right = 35.0
+offset_bottom = 35.0
+pivot_offset = Vector2(13, 13)
+color = Color(0.788, 0.663, 0.38, 1)
+
+[node name="SplashMarkInner" type="ColorRect" parent="UI/Splash/SplashVBox/SplashMarkWrap"]
+custom_minimum_size = Vector2(10, 10)
+offset_left = 17.0
+offset_top = 17.0
+offset_right = 27.0
+offset_bottom = 27.0
+rotation = 0.785398
+pivot_offset = Vector2(5, 5)
+color = Color(0.0706, 0.0627, 0.0509, 1)
+
+[node name="SplashLabel" type="Label" parent="UI/Splash/SplashVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 38
+theme_override_colors/font_color = Color(0.788, 0.663, 0.38, 1)
+theme_override_constants/spacing_glyph = 3
 text = "Isometric Pixel Map"
 horizontal_alignment = 1
-vertical_alignment = 1
 
-[node name="SplashSub" type="Label" parent="UI/Splash"]
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -220.0
-offset_top = 16.0
-offset_right = 220.0
-offset_bottom = 44.0
-theme_override_colors/font_color = Color(0.55, 0.6, 0.65, 1)
-theme_override_font_sizes/font_size = 13
+[node name="SplashHair" type="ColorRect" parent="UI/Splash/SplashVBox"]
+custom_minimum_size = Vector2(0, 1)
+size_flags_horizontal = 4
+color = Color(0.788, 0.663, 0.38, 0.3)
+
+[node name="SplashSub" type="Label" parent="UI/Splash/SplashVBox"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("5_font")
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.9, 0.83, 0.65, 1)
+text = "Pixel worlds, crafted."
+horizontal_alignment = 1
+
+[node name="SplashHint" type="Label" parent="UI/Splash/SplashVBox"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("6_font")
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.56, 0.52, 0.44, 1)
 text = "Click to paint · Maps for starters · PNG to share"
 horizontal_alignment = 1
 
@@ -384,14 +494,15 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -180.0
-offset_top = -128.0
-offset_right = 180.0
-offset_bottom = -96.0
-theme_override_colors/font_color = Color(0.95, 0.96, 0.98, 1)
+offset_left = -190.0
+offset_top = -140.0
+offset_right = 190.0
+offset_bottom = -104.0
+theme_override_fonts/font = ExtResource("6_font")
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.93, 0.87, 0.72, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
 theme_override_constants/outline_size = 4
-theme_override_font_sizes/font_size = 15
 text = ""
 horizontal_alignment = 1
 vertical_alignment = 1

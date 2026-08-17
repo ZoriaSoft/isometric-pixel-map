@@ -1,8 +1,8 @@
 # Isometric Pixel Map — MEMORY
 
-## Son durum (2026-08-10)
+## Son durum (2026-08-17)
 
-**v0.6.1+13 — PWA + og:image + Show HN hazır**
+**v0.7.0+14 — "Pixel Atelier" tema revizyonu (Sprint: tema + polish)**
 
 ### Live (ücretsiz)
 https://zo.pub/triangle/isometric-pixel-map/index.html
@@ -10,33 +10,21 @@ https://zo.pub/triangle/isometric-pixel-map/index.html
 ### GitHub (public, MIT)
 https://github.com/ZoriaSoft/isometric-pixel-map
 
-### v0.6.1 değişiklikleri
-- **PWA** — manifest + service worker + ikonlar (144/180/512, SVG'den convert ile üretildi `assets/images/pwa/`); canlıda doğrulandı (service worker activated)
-- **og:image** — `build/web/og-image.png` (1200×630, demo harita); export preset'te `summary_large_image` twitter card
-- **Show HN taslağı güncellendi** (`docs/SHOW_HN.md`) — yeni özellikler + index.html linki
-- Analytics: kullanıcı şimdilik atladı
+### v0.7.0 değişiklikleri
+- **"Pixel Atelier" tema** — Luxury/Refined chrome: sıcak obsidyen tuval (`#12100D`) + şampanya-altını accent (`#C9A961`); eski teal tamamen kaldırıldı
+- **Fontlar:** Fraunces (serif display — brand/section, letterspaced small-caps) + JetBrains Mono (data); `assets/fonts/` bundled (OFL, lisans notu eklendi)
+- **Brand mark:** elmas logo (ISO·MAP) + splash diamond spin-in animasyonu
+- **Chrome restyle:** panel/buton/tooltip/lineedit — `theme_apply.gd` tek kaynak
+- PWA theme-color + clear color `#12100D` senkron
+- **QA:** xvfb screenshot pixel analizi — teal %0, obsidyen+altın aktif; verify PASS
 
-### v0.6.0 değişiklikleri
-- **Custom tile upload** — "Tile+" butonu PNG seçici açar (web: file input, desktop: file dialog); görsel paintable tile olarak kaydedilir, JSON'a (`custom_tiles`) yazılır, share link'te taşınır (selftest doğrular)
-- Custom tile'lar 100+ id alır; yeni harita yüklenince temizlenir (`Palette.clear_custom` / `TileAtlas.clear_custom`)
-- Tarayıcı smoke: yeni build hata vermiyor (taze session)
-
-### v0.5.0 değişiklikleri
-- **Harita boyutu 32/48/64** — New-map menüsünde "Grid size" alt menüsü; boyut JSON'a `w/h` olarak yazılır, yüklenen harita kendi boyutunu korur (eski 32×32 dosyalar etkilenmez)
-- **Tile varyasyonları** — ground tile'lar (grass/dirt/sand/path/stone/wood/snow/lava) 3 deterministik per-cell varyant render eder; büyük haritalar artık "döşeme" gibi görünmez. PNG export ekranla aynı varyantı kullanır
-- **Undo diff gerekmedi:** 64×64'te bile 48 snapshot × 32KB = ~1.5MB — tam clone yeterli
-- Performans: 64×64 PNG export 238ms (32×32: 67ms) — kabul edilebilir
-
-### v0.4.0 değişiklikleri
-- **Share link tam dolu haritada patlıyordu:** ham base64 hash ~6.9KB olup 6000-char limitini aşıyordu → ZSTD sıkıştırma (`z1` önek): tam dolu harita **6944 → 142 karakter** (~49× küçük). Legacy plain-base64 linkler (v0.3.0) hâlâ yüklenir (selftest doğrular)
-- Tarayıcı smoke test (agent-browser): WebGL render ✓, klavye input ✓, PNG export ✓ (title-based filename), JSON save ✓
-
-### v0.3.1 düzeltmeleri
-- **Flood fill kesilme hatası:** pop-count guard büyük bölgeleri %25'te durduruyordu → seen-on-push + filled-count guard ile tam 32×32 fill
-- **Geçersiz JSON sessizce haritayı siliyordu:** `from_json` artık null döndürüyor; bozuk autosave / kötü dosya / geçersiz share hash reddediliyor
-- **Web sağ-tık menü engeli:** RMB pan yaparken tarayıcı context menu'su bastırıldı
-- **Brush footprint ghost:** hover outline artık fırça boyutunu (3×/5×) gösteriyor
-- **Selftest:** `_test_fill_full_map` (1024 hücre, gerçek Game kod yolu) + `_test_bad_json` eklendi
+### Önceki (v0.6.1)
+- **PWA** — manifest + service worker + ikonlar; canlıda doğrulandı
+- **og:image** — 1200×630 share card + `summary_large_image`
+- **Custom tile upload** — Tile+ PNG seçici, JSON'a `custom_tiles`, share link'te taşınır
+- **Harita boyutu 32/48/64** — JSON `w/h`, legacy uyumlu
+- **Tile varyasyonları** — ground tile'lar 3 deterministik varyant; PNG export eşleşir
+- **Share link ZSTD** — 6944 → 142 karakter (~49×); legacy base64 linkler yüklenir
 
 ### Komutlar
 ```bash
@@ -44,3 +32,13 @@ bash scripts/tools/verify.sh
 bash scripts/tools/export_web.sh
 zopub sync isometric-pixel-map build/web
 ```
+
+### Açık işler
+- [ ] Show HN yayını (`docs/SHOW_HN.md` güncel) — web live smoke sonrası
+- [ ] Size trim (wasm ~36MB engine fixed — opsiyonel)
+- [ ] Web live smoke (yeni tema + PWA re-install)
+
+### Notlar
+- DNA: `/home/workspace/Zoria-DNA/`
+- Kardeş: `napkin-plan` (Canvas floor sketch) — cross-link var
+- Selftest: `godot --headless --path . -s res://scripts/tools/rules_selftest.gd`

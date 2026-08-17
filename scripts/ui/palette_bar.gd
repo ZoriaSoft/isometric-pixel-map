@@ -47,11 +47,11 @@ func _add_group(ids: Array[int], layer: String) -> void:
 
 func _style_btn(btn: Button, selected: bool, dimmed: bool) -> void:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.07, 0.09, 0.12, 0.95 if not dimmed else 0.55)
+	style.bg_color = Color(0.10, 0.088, 0.071, 0.95 if not dimmed else 0.55)
 	style.set_corner_radius_all(6)
 	style.set_border_width_all(2)
 	if selected:
-		style.border_color = Color(0.24, 0.86, 0.59)
+		style.border_color = Color(0.788, 0.663, 0.38)
 	else:
 		style.border_color = Color(0, 0, 0, 0.35)
 	style.content_margin_left = 2
@@ -60,7 +60,8 @@ func _style_btn(btn: Button, selected: bool, dimmed: bool) -> void:
 	style.content_margin_bottom = 2
 	btn.add_theme_stylebox_override("normal", style)
 	var style_h := style.duplicate() as StyleBoxFlat
-	style_h.border_color = Color(0.24, 0.86, 0.59)
+	style_h.border_color = Color(0.898, 0.788, 0.561)
+	style_h.bg_color = Color(0.16, 0.14, 0.11, 0.95 if not dimmed else 0.55)
 	btn.add_theme_stylebox_override("hover", style_h)
 	btn.add_theme_stylebox_override("pressed", style_h)
 	btn.modulate = Color(1, 1, 1, 0.42 if dimmed and not selected else 1.0)

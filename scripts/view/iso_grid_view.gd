@@ -61,7 +61,7 @@ func _draw() -> void:
 		var gid := m.get_cell(Palette.LAYER_GROUND, cell.x, cell.y)
 		_draw_tile(base, gid, cell)
 		if show_grid:
-			_draw_diamond_outline(base, Color(1, 1, 1, 0.08))
+			_draw_diamond_outline(base, Color(0.788, 0.663, 0.38, 0.10))
 	# props
 	for cell in _order_cache:
 		var pid := m.get_cell(Palette.LAYER_PROPS, cell.x, cell.y)
@@ -74,14 +74,14 @@ func _draw() -> void:
 		var hb := MapData.cell_to_screen(hover_cell.x, hover_cell.y) + origin
 		var radius := 0 if Game.current_tool == Game.Tool.FILL else Game.get_brush_radius()
 		if Game.current_tool == Game.Tool.ERASE:
-			_draw_brush_footprint(hover_cell, radius, Color(1, 0.35, 0.35, 0.9), Color(1, 0.25, 0.25, 0.25))
+			_draw_brush_footprint(hover_cell, radius, Color(0.85, 0.54, 0.37, 0.9), Color(0.85, 0.54, 0.37, 0.22))
 		else:
 			var tex := TileAtlas.texture_of(Game.selected_tile)
 			if tex:
 				var dest := Rect2(hb.x - 16, hb.y - 16, 32, 32)
 				draw_texture_rect(tex, dest, false, Color(1, 1, 1, 0.5))
 			# accent outline on hover cell(s)
-			var accent := Color(0.24, 0.86, 0.59, 0.7)
+			var accent := Color(0.788, 0.663, 0.38, 0.85)
 			if radius == 0:
 				_draw_diamond_outline(hb, accent)
 			else:

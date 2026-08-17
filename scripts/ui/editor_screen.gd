@@ -8,6 +8,8 @@ extends Control
 @onready var hint_label: Label = %HintLabel
 @onready var splash: ColorRect = %Splash
 @onready var splash_label: Label = %SplashLabel
+@onready var splash_mark: ColorRect = %SplashMark
+@onready var palette_label: Label = %PaletteLabel
 @onready var toast_label: Label = %ToastLabel
 @onready var dimmer: ColorRect = %Dimmer
 
@@ -37,9 +39,12 @@ var _grid_on: bool = true
 func _ready() -> void:
 	TileAtlas.ensure()
 	theme = ThemeApply.make_theme()
+	if about_panel:
+		about_panel.add_theme_stylebox_override("panel", ThemeApply.card_style())
 	_style_primary_png()
 	_build_template_menu()
 	_build_file_dialogs()
+	ThemeApply.style_section_label(palette_label)
 	_refresh_labels()
 	_refresh_chrome_styles()
 	Game.map_changed.connect(_on_map_changed)
@@ -168,9 +173,16 @@ func _run_splash() -> void:
 	splash.modulate.a = 1.0
 	if splash_label:
 		splash_label.text = L.t("app_name")
+	if splash_mark:
+		# high-impact moment: square spins into a diamond, then fades out
+		splash_mark.rotation = 0.0
+		splash_mark.scale = Vector2(0.8, 0.8)
+		var tw_mark := create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+		tw_mark.tween_property(splash_mark, "rotation", PI / 4.0, 0.5)
+		tw_mark.parallel().tween_property(splash_mark, "scale", Vector2.ONE, 0.5)
 	var tw := create_tween()
-	tw.tween_interval(0.3)
-	tw.tween_property(splash, "modulate:a", 0.0, 0.3)
+	tw.tween_interval(0.75)
+	tw.tween_property(splash, "modulate:a", 0.0, 0.35)
 	tw.tween_callback(func() -> void:
 		splash.visible = false
 	)
