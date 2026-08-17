@@ -39,6 +39,12 @@ var _grid_on: bool = true
 func _ready() -> void:
 	TileAtlas.ensure()
 	theme = ThemeApply.make_theme()
+	# CanvasLayer does not inherit parent themes in Godot 4 — apply to the
+	# top-level UI containers directly so all their children resolve it.
+	for path in ["UI/TopBar", "UI/BottomBar", "UI/AboutPanel"]:
+		var c := get_node_or_null(path) as Control
+		if c:
+			c.theme = theme
 	if about_panel:
 		about_panel.add_theme_stylebox_override("panel", ThemeApply.card_style())
 	_style_primary_png()

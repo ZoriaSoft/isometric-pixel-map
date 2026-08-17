@@ -1,74 +1,69 @@
 # DESIGN — Isometric Pixel Map
 
-## 🎯 Aesthetic Direction (v0.7.0 — commit edilecek)
+## 🎯 Aesthetic Direction (commit edilmiş)
 
-- **Akım:** Luxury / Refined — "**Pixel Atelier**"
-- **Niye:** Pixel map editörü bir "atölye" — sıcak malzeme (obsidyen, pirinç, fildişi) hissi; generic koyu-editör-teal (v0.6) ve mor AI estetiğinden bilinçli ayrışma.
-- **Ayrışma hamlesi:** Şampanya-altını accent + Fraunces serif display + JetBrains Mono data. Teal/koyu-lacivert yok.
+- **Akım:** Luxury / Refined
+- **Niye bu akım:** Pixel-art yaratım aracı bir "hobi kutusu" değil — bir **zanaat atölyesi**. Sıcak obsidyen + şampanya-altın chrome, renkli pixel tile'ları bir koleksiyon parçası gibi öne çıkarır; ücretsiz araç "premium studio" hissi verir.
+- **Bu akımdan ayrışan tek hamle:** "Pixel Atelier" — sıcak obsidyen kanvas + altın hairline chrome + **Fraunces** serif wordmark (ISO·MAP) + **JetBrains Mono** data readout'ları. Kare "elmas" mark, açılışta kare→elmas'a dönen yüksek etkili splash animasyonu.
+- **Diğer Zoria projeleri ile gerilim:** Kardeş ürün napkin-plan (generic dark) — hairline altın + serif wordmark ile ayrışır. Zoria kataloğunda luxury akımını kullanan başka proje yok.
 
-## 🧬 Karakter
+## 🧬 Bağlam
 
-Retro tool-first: sıcak obsidyen tuval, pirinç-altın donanım, serif marka. Marketing sitesi değil — ürün = tuval.
+- **Sektör/alan:** Ücretsiz browser tabanlı izometrik pixel-map editörü (game jam / mockup / worldbuilding)
+- **Hedef kitle:** Indie devler, jam'ciler, pixel-art tutkunları — "aç, boya, paylaş" kitlesi
+- **Ayrışma cümlesi:** "Aseprite klonu değil — pixel dünyalar için bir atölye."
 
-## Palet (v0.7.0)
+## 🅰 Typography
+
+- Display (brand, splash, section başlıkları): **Fraunces 600** (`assets/fonts/fraunces-600.ttf`, OFL)
+- Display light (tagline): **Fraunces 500**
+- Data (status, koordinatlar, kısayollar, title input): **JetBrains Mono 400/500** (`assets/fonts/`, OFL)
+- UI gövde: Godot default (clean sans) — Inter/Roboto/Arial kullanılmaz
+
+## 🎨 Color & Theme
 
 | Token | Hex | Kullanım |
-|-------|-----|----------|
-| bg_canvas | `#12100D` | Clear color / tuval (warm obsidian) |
-| panel | `#1A1612` | Top/bottom bar'lar |
-| panel_2 | `#221C15` | Buton / hover yüzeyi |
-| panel_3 | `#2B241B` | Pressed / active fill |
-| gold | `#C9A961` | Primary accent — seçili çerçeve, brand |
-| gold_bright | `#E0C98F` | Hover / parlak vurgu |
-| champagne | `#E5D4A1` | Altın üzerinde parlak metin |
-| ink | `#EDE3CE` | Ana metin (warm ivory) |
-| muted | `#8F8470` | İpucu / durum |
-| danger | `#D98A5F` | Erase ghost (sıcak terracotta) |
-| hairline | `rgba(201,169,97,0.20)` | İnce altın çizgiler |
+|---|---|---|
+| BG canvas | `#12100D` | clear color — sıcak obsidyen |
+| Panel | `#1A1612` | top/bottom barlar, kartlar |
+| Panel-2 | `#221C15` | butonlar, hover yüzeyleri |
+| **Gold** | `#C9A961` | brand, seçim, primary CTA (PNG) |
+| Gold-bright | `#E0C98F` | CTA hover |
+| Champagne | `#E5D4A1` | hover text, section başlıkları |
+| Ink | `#EDE3CE` | ana metin (sıcak fildişi) |
+| Muted | `#8F8470` | ipuçları, status |
+| Danger | `#D98A5F` | erase ghost (sıcak terracotta) |
+| Hairline | `rgba(201,169,97,.20)` | ince altın çizgiler |
 
-Tek kaynak: `scripts/ui/theme_apply.gd`.
+**Yasak:** mor gradyan, #0A0A0F zemin, #F5F1E8 metin, amber+emerald+teal üçlüsü, Inter/Roboto/Arial.
 
-**Yasak:** mor gradyan, generic purple-AI look, teal accent (eski tema), Inter/Roboto/Arial, aşırı glow.
+## 🌀 Motion
 
-## Tipografi (v0.7.0)
+- **High-impact moment:** Splash'ta elmas mark'ın kare→elmas'a dönüşü (rotation 0→45°, 500ms easeOutCubic) + fade (350ms)
+- **Tween profili:** `Tween.EASE_OUT + TRANS_CUBIC` (default linear değil)
+- Toast: 1.5s bekle + 350ms fade
 
-- **Fraunces** (SIL OFL) — brand/section başlıklar (letterspaced small-caps, `ISO·MAP` markası)
-- **JetBrains Mono** (SIL OFL) — data/status/kısayol etiketleri
-- Kaynak: `assets/fonts/` (bundled, offline; lisans: `assets/fonts/README.md`)
-- Godot default font yalnızca fallback
+## 📐 Spatial Composition
 
-## Brand
+- Üst bar: segmentli premium tool grupları (tools | brush | history | view | layers | file) — VSeparator hairline ayrımlar
+- Alt bar: "TILES" letterspaced serif başlık + sağda mono hint + tile paleti
+- About: ortalanmış kart (hairline altın border + soft shadow + diamond mark)
+- Kanvas: izometrik harita ortalanmış, obsidyen matte çevre
 
-- **Mark:** 45° döndürülmüş kare (elmas) + iç elmas — `UI/TopBar` brand mark
-- **Splash:** elmas 0.5s spin-in (cubic ease) + fade; toplam ~1.1s
+## 🎭 Backgrounds & Visual Details
 
-## Grid
+- Hairline altın border'lar (bar alt kenarları, kartlar, buton hover)
+- Rotated ColorRect "pixel elmas" mark (font glyph'i değil — güvenli render)
+- Grid: sıcak altın `rgba(201,169,97,.10)`
+- Hover ghost: altın outline; erase ghost terracotta
+- Splash: obsidyen + altın hairline + serif wordmark + mono hint
 
-- Classic 2:1 iso diamond
-- Tile 32×16 logical
-- `texture_filter = nearest` (project)
+## 🧪 Doğrulama
 
-## UX
+- [x] `bash scripts/tools/verify.sh` → VERIFY PASS
+- [x] Web smoke (agent-browser): tema uygulanıyor, layout tam pencere, splash animasyonu, About+dimmer, palette gold seçim, boyama
+- [x] Fontlar OFL (Fraunces, JetBrains Mono) — PWA offline uyumlu bundle
 
-- İlk ~1.1 sn: splash (brand mark animasyonu) → seed harita görünür
-- Tooltip: Click / Scroll / Drag
-- Tek sahne editör; ayrı landing route yok
+## Not (implementation)
 
-## Chrome (toolbar)
-
-```
-[◆ ISO·MAP] | [P E F] | [1× 3× 5×] | [↶ ↷] | [− + #] | [Ground|Props] | Maps Load Save [PNG] [Share] | ? |··| status
- brand          tools     brush         hist     view       layers*          file + primary CTA + share
-```
-
-- Tools: compact, aktif fill gold çerçeve
-- Brush: cycle 1×/3×/5× (B key)
-- PNG: primary CTA (gold)
-- Status: `title · layer · tile` (hover: `x,y · ground/prop`)
-- Bottom: short hint + palette (inactive layer tiles dimmed)
-
-## Doğrulama (v0.7.0)
-
-- [x] Pixel analizi: teal %0, obsidyen zemin + altın çerçeve aktif
-- [x] verify selftest PASS
-- [ ] Cihazda smoke (web live)
+Godot 4.6'da `CanvasLayer` tema kalıtımını keser — tema `UI/TopBar`, `UI/BottomBar`, `UI/AboutPanel`'e doğrudan atanır (bkz. `editor_screen.gd:_ready`). Stretch `expand` mode'da tüm canvas (UI dahil) viewport'a göre ölçeklenir; butonlar 40px virtual → 32px screen.

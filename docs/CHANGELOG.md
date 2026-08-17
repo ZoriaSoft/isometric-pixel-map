@@ -15,7 +15,8 @@
 - `project.godot`: clear color `#12100D`
 
 ### Fixed
-- _yok_
+- **Tema gerçekten uygulanıyor** — Godot 4.6'da `CanvasLayer` tema kalıtımını kesiyor; tema `UI/TopBar`, `UI/BottomBar`, `UI/AboutPanel`'e doğrudan atandı (öncesinde barlar default tema ile render ediliyordu)
+- **Full-window UI layout** — UI tekrar `CanvasLayer`'a alındı; stretch `expand` mode'da Control-tabanlı UI viewport ortalanıp taşıyordu (toolbar soldan kesiliyordu). Artık barlar tam pencere genişliğinde
 
 ## [0.6.1+13] — 2026-08-10
 
