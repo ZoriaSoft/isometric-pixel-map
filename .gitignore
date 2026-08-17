@@ -29,3 +29,7 @@ Thumbs.db
 
 # Screenshots temp
 screenshots/.tmp/
+
+# QA artifacts (single-use live shots)
+live_*.png
+screenshots/qa_size_test.png
