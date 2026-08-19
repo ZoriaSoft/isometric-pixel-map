@@ -18,6 +18,7 @@ func _init() -> void:
 	failed += _test_share_link()
 	failed += _test_desert_alias()
 	failed += _test_map_sizes()
+	failed += _test_grid_size_bug()
 	failed += _test_custom_tiles()
 	if failed == 0:
 		print("SELFTEST PASS")
@@ -116,7 +117,7 @@ func _test_map_json() -> int:
 	if m2.get_cell("props", 5, 6) != Palette.TREE:
 		print("FAIL props roundtrip")
 		return 1
-	if m2.ground.size() != MapData.W * MapData.H:
+	if m2.ground.size() != m2.w * m2.h:
 		print("FAIL size")
 		return 1
 	print("OK map json")
@@ -137,7 +138,7 @@ func _test_paint_fill_undo() -> int:
 	var seen := {}
 	while not stack.is_empty():
 		var p: Vector2i = stack.pop_back()
-		var key := p.x * MapData.W + p.y
+		var key := p.x * m.w + p.y
 		if seen.has(key):
 			continue
 		seen[key] = true
@@ -201,8 +202,8 @@ func _test_fill_full_map() -> int:
 	for i in g.map.ground.size():
 		if g.map.ground[i] == Palette.GRASS:
 			count += 1
-	if count != MapData.W * MapData.H:
-		print("FAIL full-map fill got ", count, "/", MapData.W * MapData.H)
+	if count != g.map.w * g.map.h:
+		print("FAIL full-map fill got ", count, "/", g.map.w * g.map.h)
 		return 1
 	g.free()
 	print("OK fill full map (", count, " cells)")
@@ -272,7 +273,7 @@ func _test_templates() -> int:
 	for e in cat:
 		var id := str(e.get("id", ""))
 		var m := MapTemplates.make(id)
-		if m == null or m.ground.size() != MapData.W * MapData.H:
+		if m == null or m.ground.size() != m.w * m.h:
 			print("FAIL template ", id)
 			return 1
 		if m.title.strip_edges() == "":
@@ -456,16 +457,15 @@ func _test_map_sizes() -> int:
 	print("== map sizes ==")
 	# 48×48 and 64×64 maps: create, paint, JSON roundtrip preserves size
 	for size in [48, 64]:
-		MapData.W = size
-		MapData.H = size
-		var m := MapTemplates.make(MapTemplates.ID_SETTLEMENT)
-		if m.ground.size() != size * size:
-			print("FAIL template size ", size, " got ", m.ground.size())
+		var m := MapData.new()
+		m = m.resized(size, size)
+		if m.ground.size() != size * size or m.w != size or m.h != size:
+			print("FAIL resized size ", size, " got ", m.ground.size())
 			return 1
 		m.set_cell("ground", size / 2, size / 2, Palette.DIRT)
 		var text := m.to_json()
 		var m2 := MapData.from_json(text)
-		if m2 == null or m2.ground.size() != size * size:
+		if m2 == null or m2.ground.size() != size * size or m2.w != size:
 			print("FAIL roundtrip size ", size)
 			return 1
 		if m2.get_cell("ground", size / 2, size / 2) != Palette.DIRT:
@@ -476,10 +476,68 @@ func _test_map_sizes() -> int:
 		if img.get_width() < size:
 			print("FAIL png width ", size)
 			return 1
-	# restore default for later tests
-	MapData.W = 32
-	MapData.H = 32
 	print("OK map sizes 48/64")
+	return 0
+
+
+func _test_grid_size_bug() -> int:
+	print("== grid size bug ==")
+	var game_script: GDScript = load("res://scripts/autoload/Game.gd")
+	var g: Node = game_script.new()
+	g.map = MapTemplates.make(MapTemplates.ID_BLANK)
+	g.set_map_size(64)
+	if g.map.w != 64 or g.map.h != 64:
+		print("FAIL map dimensions not 64 after set_map_size: w=", g.map.w, " h=", g.map.h)
+		g.free()
+		return 1
+	if g.map.ground.size() != 4096 or g.map.props.size() != 4096:
+		print("FAIL map arrays not 4096 cells: ground=", g.map.ground.size())
+		g.free()
+		return 1
+	if not g.map.set_cell("ground", 50, 40, Palette.DIRT):
+		print("FAIL set_cell beyond 32x32 returned false")
+		g.free()
+		return 1
+	if g.map.ground[40 * 64 + 50] != Palette.DIRT:
+		print("FAIL ground array value at 50,40 not DIRT")
+		g.free()
+		return 1
+	if g.map.get_cell("ground", 0, 0) != Palette.GRASS:
+		print("FAIL overlap cell 0,0 not GRASS")
+		g.free()
+		return 1
+	g.map = g.map.resized(24, 24)
+	if g.map.w != 24 or g.map.h != 24:
+		print("FAIL resized map w/h not 24")
+		g.free()
+		return 1
+	if g.map.get_cell("ground", 20, 20) != Palette.GRASS:
+		print("FAIL overlap cell 20,20 after crop not GRASS")
+		g.free()
+		return 1
+	var g2: Node = game_script.new()
+	g2.map = MapTemplates.make(MapTemplates.ID_BLANK)
+	g2.grid_size = 32
+	g2.set_map_size(64)
+	g2.undo()
+	if g2.map.w != 32 or g2.map.h != 32:
+		print("FAIL undo did not restore 32x32 dimensions: w=", g2.map.w)
+		g.free()
+		g2.free()
+		return 1
+	if g2.grid_size != 32:
+		print("FAIL undo did not restore grid_size to 32: grid_size=", g2.grid_size)
+		g.free()
+		g2.free()
+		return 1
+	g2.free()
+	var img := PngExporter.render_map(g.map, 1)
+	if img == null or img.get_width() < 24:
+		print("FAIL png export on resized map")
+		g.free()
+		return 1
+	g.free()
+	print("OK grid size bug")
 	return 0
 
 

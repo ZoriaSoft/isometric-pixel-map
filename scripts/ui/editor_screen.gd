@@ -81,6 +81,28 @@ func _ready() -> void:
 	if not FileAccess.file_exists(Game.AUTOSAVE_PATH):
 		await get_tree().create_timer(1.2).timeout
 		show_toast(L.t("welcome"))
+	resized.connect(_on_ui_resized)
+	_on_ui_resized()
+
+
+func _on_ui_resized() -> void:
+	var narrow := size.x < 600.0
+	var very_narrow := size.x < 480.0
+	var zoom_out := get_node_or_null("UI/TopBar/Margin/HBox/FlowLeft/View/BtnZoomOut") as CanvasItem
+	if zoom_out:
+		zoom_out.visible = not narrow
+	var zoom_in := get_node_or_null("UI/TopBar/Margin/HBox/FlowLeft/View/BtnZoomIn") as CanvasItem
+	if zoom_in:
+		zoom_in.visible = not narrow
+	var sep_view := get_node_or_null("UI/TopBar/Margin/HBox/FlowLeft/SepView") as CanvasItem
+	if sep_view:
+		sep_view.visible = not narrow
+	if status_label:
+		status_label.visible = not narrow
+	# Title edit needs ~120px next to the toolbar; hide on phones so the
+	# FlowLeft toolbar gets the full width (default title is fine).
+	if title_input:
+		title_input.visible = not very_narrow
 
 
 func _on_title_changed(new_text: String) -> void:
@@ -268,7 +290,7 @@ func _build_template_menu() -> void:
 func _sync_size_checks() -> void:
 	for si in _size_ids.size():
 		var s: int = _size_ids[si]
-		_template_menu.set_item_checked(si, s == MapData.W)
+		_template_menu.set_item_checked(si, s == (Game.map.w if Game.map else 32))
 
 
 func _on_menu_item(index: int) -> void:
@@ -436,7 +458,7 @@ func _on_new_pressed() -> void:
 		Game.new_from_template(MapTemplates.ID_BLANK)
 		show_toast(L.t("new_map"))
 		return
-	var btn := get_node_or_null("UI/TopBar/Margin/HBox/File/BtnNew") as Button
+	var btn := get_node_or_null("UI/TopBar/Margin/HBox/FlowLeft/File/BtnNew") as Button
 	if btn:
 		var g := btn.get_global_rect()
 		_template_menu.position = Vector2i(int(g.position.x), int(g.position.y + g.size.y + 2))

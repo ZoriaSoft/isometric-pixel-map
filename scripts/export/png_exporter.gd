@@ -18,8 +18,8 @@ static func render_map_software(map: MapData, scale: int = 2) -> Image:
 	var max_x := -INF
 	var min_y := INF
 	var max_y := -INF
-	for r in MapData.H:
-		for c in MapData.W:
+	for r in map.h:
+		for c in map.w:
 			var p := MapData.cell_to_screen(c, r)
 			min_x = minf(min_x, p.x - 16)
 			max_x = maxf(max_x, p.x + 16)
@@ -37,13 +37,7 @@ static func render_map_software(map: MapData, scale: int = 2) -> Image:
 	var img := Image.create(w, h, false, Image.FORMAT_RGBA8)
 	img.fill(Color(0.043, 0.059, 0.078, 1))
 
-	var order: Array[Vector2i] = []
-	for r in MapData.H:
-		for c in MapData.W:
-			order.append(Vector2i(c, r))
-	order.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
-		return (a.x + a.y) < (b.x + b.y) or ((a.x + a.y) == (b.x + b.y) and a.x < b.x)
-	)
+	var order := MapData.draw_order(map.w, map.h)
 
 	# Pre-render scaled tile cache: id -> Image
 	var tile_cache: Dictionary = {}

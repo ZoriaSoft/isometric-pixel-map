@@ -149,8 +149,8 @@ static func _wilderness() -> MapData:
 		var off := int(sin(i * 0.35) * 2)
 		_set_g(m, i, 15 + off, Palette.PATH)
 		_set_g(m, i, 16 + off, Palette.PATH)
-	for r in MapData.H:
-		for c in MapData.W:
+	for r in m.h:
+		for c in m.w:
 			if c >= 12 and c <= 19 and r >= 12 and r <= 19:
 				continue
 			var n := (c * 17 + r * 31) % 7
@@ -171,7 +171,7 @@ static func _crossroads() -> MapData:
 	m.title = "Crossroads"
 	_fill_ground(m, Palette.GRASS)
 	# N-S and E-W roads (2 tiles wide)
-	for i in range(0, MapData.W):
+	for i in range(0, m.w):
 		_set_g(m, i, 15, Palette.PATH)
 		_set_g(m, i, 16, Palette.PATH)
 		_set_g(m, 15, i, Palette.PATH)
@@ -202,8 +202,8 @@ static func _coast() -> MapData:
 	_fill_ground(m, Palette.WATER)
 	var cx := 15.5
 	var cy := 15.5
-	for r in MapData.H:
-		for c in MapData.W:
+	for r in m.h:
+		for c in m.w:
 			var dx := float(c) - cx
 			var dy := float(r) - cy
 			var d := sqrt(dx * dx + dy * dy * 1.05)

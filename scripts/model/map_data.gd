@@ -7,10 +7,8 @@ const VERSION := 1
 const TILE_W := 32
 const TILE_H := 16
 
-## Mutable so from_dict/new_from_template can pick the grid size at runtime.
-static var W := 32
-static var H := 32
-
+var w: int = 32
+var h: int = 32
 var title: String = "Untitled"
 var ground: PackedInt32Array
 var props: PackedInt32Array
@@ -22,7 +20,7 @@ func _init() -> void:
 
 
 func clear() -> void:
-	var n := W * H
+	var n := w * h
 	ground = PackedInt32Array()
 	ground.resize(n)
 	props = PackedInt32Array()
@@ -34,11 +32,11 @@ func clear() -> void:
 
 
 func idx(c: int, r: int) -> int:
-	return r * W + c
+	return r * w + c
 
 
 func in_bounds(c: int, r: int) -> bool:
-	return c >= 0 and r >= 0 and c < W and r < H
+	return c >= 0 and r >= 0 and c < w and r < h
 
 
 func get_cell(layer: String, c: int, r: int) -> int:
@@ -65,6 +63,8 @@ func set_cell(layer: String, c: int, r: int, tile_id: int) -> bool:
 
 func clone() -> MapData:
 	var m := MapData.new()
+	m.w = w
+	m.h = h
 	m.title = title
 	m.ground = ground.duplicate()
 	m.props = props.duplicate()
@@ -73,10 +73,40 @@ func clone() -> MapData:
 
 
 func apply_snapshot(other: MapData) -> void:
+	w = other.w
+	h = other.h
 	title = other.title
 	ground = other.ground.duplicate()
 	props = other.props.duplicate()
 	custom_tiles = other.custom_tiles.duplicate(true)
+
+
+func resized(new_w: int, new_h: int) -> MapData:
+	var out := MapData.new()
+	out.w = new_w
+	out.h = new_h
+	out.clear()
+	var n := new_w * new_h
+	for i in n:
+		out.ground[i] = Palette.GRASS
+	for r in mini(h, new_h):
+		for c in mini(w, new_w):
+			out.ground[r * new_w + c] = ground[r * w + c]
+			out.props[r * new_w + c] = props[r * w + c]
+	out.title = title
+	out.custom_tiles = custom_tiles.duplicate(true)
+	return out
+
+
+static func draw_order(gw: int, gh: int) -> Array[Vector2i]:
+	var order: Array[Vector2i] = []
+	for r in gh:
+		for c in gw:
+			order.append(Vector2i(c, r))
+	order.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
+		return (a.x + a.y) < (b.x + b.y) or ((a.x + a.y) == (b.x + b.y) and a.x < b.x)
+	)
+	return order
 
 
 ## Classic 2:1 iso: cell → screen (top of diamond).
@@ -98,8 +128,8 @@ static func screen_to_cell(pos: Vector2) -> Vector2i:
 func to_dict() -> Dictionary:
 	return {
 		"v": VERSION,
-		"w": W,
-		"h": H,
+		"w": w,
+		"h": h,
 		"tw": TILE_W,
 		"th": TILE_H,
 		"title": title,
@@ -124,9 +154,10 @@ static func from_dict(d: Dictionary) -> MapData:
 	if w < 8 or h < 8 or w > 128 or h > 128:
 		w = 32
 		h = 32
-	W = w
-	H = h
 	var m := MapData.new()
+	m.w = w
+	m.h = h
+	m.clear()
 	m.title = str(d.get("title", "Untitled"))
 	var layers: Dictionary = d.get("layers", {})
 	_fill_layer(m.ground, layers.get("ground", []))
@@ -158,8 +189,8 @@ static func make_seed() -> MapData:
 	var m := MapData.new()
 	m.title = "Demo Village"
 	# grass base
-	for r in H:
-		for c in W:
+	for r in m.h:
+		for c in m.w:
 			m.ground[m.idx(c, r)] = Palette.GRASS
 	# dirt patches
 	for r in range(3, 6):

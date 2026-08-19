@@ -23,31 +23,49 @@ func _ready() -> void:
 	_camera = get_parent().get_node_or_null("Camera2D") as Camera2D
 	Game.map_changed.connect(_on_map_changed)
 	_rebuild_order()
-	var mid := MapData.cell_to_screen(MapData.W / 2, MapData.H / 2)
+	var gw := Game.map.w if Game.map else 32
+	var gh := Game.map.h if Game.map else 32
+	var mid := MapData.cell_to_screen(gw / 2, gh / 2)
 	origin = Vector2.ZERO
 	if _camera:
 		_camera.position = mid + Vector2(0, MapData.TILE_H)
+		# stretch disabled: harita viewport'a sığsın (mobilde zoom küçülür,
+		# desktop 32×32'de 1.2 korunur).
+		var z := _fit_zoom()
+		_camera.zoom = Vector2(z, z)
 	queue_redraw()
+
+
+## Zoom such that the whole map fits the viewport (capped at 1.2, min 0.2).
+func _fit_zoom() -> float:
+	var vp := get_viewport().get_visible_rect().size
+	if vp.x <= 0 or vp.y <= 0:
+		return 1.2
+	var m := Game.map
+	var map_w := MapData.TILE_W * (m.w if m else 32) + 32.0
+	var map_h := MapData.TILE_H * (m.h if m else 32) + 48.0
+	var fit := minf(vp.x / map_w, vp.y / map_h)
+	return clampf(minf(fit, 1.2), 0.2, 1.2)
 
 
 func _on_map_changed() -> void:
 	# grid size may have changed (new map at 48/64) — rebuild the draw order
-	if _order_cache.size() != MapData.W * MapData.H:
+	var gw := Game.map.w if Game.map else 32
+	var gh := Game.map.h if Game.map else 32
+	if _order_cache.size() != gw * gh:
 		_rebuild_order()
 		if _camera:
-			var mid := MapData.cell_to_screen(MapData.W / 2, MapData.H / 2)
+			var mid := MapData.cell_to_screen(gw / 2, gh / 2)
 			_camera.position = mid + Vector2(0, MapData.TILE_H)
+			var z := _fit_zoom()
+			_camera.zoom = Vector2(z, z)
 	queue_redraw()
 
 
 func _rebuild_order() -> void:
-	_order_cache.clear()
-	for r in MapData.H:
-		for c in MapData.W:
-			_order_cache.append(Vector2i(c, r))
-	_order_cache.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
-		return (a.x + a.y) < (b.x + b.y) or ((a.x + a.y) == (b.x + b.y) and a.x < b.x)
-	)
+	var gw := Game.map.w if Game.map else 32
+	var gh := Game.map.h if Game.map else 32
+	_order_cache = MapData.draw_order(gw, gh)
 
 
 func _draw() -> void:
@@ -250,7 +268,7 @@ func _touch_distance() -> float:
 func _zoom_by(factor: float) -> void:
 	if _camera == null:
 		return
-	var z := clampf(_camera.zoom.x * factor, 0.35, 3.0)
+	var z := clampf(_camera.zoom.x * factor, 0.2, 3.0)
 	_camera.zoom = Vector2(z, z)
 
 

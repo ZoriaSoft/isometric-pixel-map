@@ -1,7 +1,7 @@
 extends Node
 ## Global map state, tools, undo, save/load, export helpers.
 
-const APP_VERSION := "0.7.0+14"
+const APP_VERSION := "0.7.1+15"
 const AUTOSAVE_PATH := "user://autosave.json"
 const MAX_UNDO := 48
 
@@ -29,6 +29,7 @@ var active_layer: String = Palette.LAYER_GROUND
 var selected_tile: int = Palette.GRASS
 var current_tool: Tool = Tool.PEN
 var brush_index: int = 0
+var grid_size: int = 32
 
 var _undo: Array[MapData] = []
 var _redo: Array[MapData] = []
@@ -48,9 +49,12 @@ func new_map(seeded: bool = true) -> void:
 
 
 func set_map_size(size: int) -> void:
-	if size in MAP_SIZES:
-		MapData.W = size
-		MapData.H = size
+	if size in MAP_SIZES and size != grid_size:
+		grid_size = size
+		_push_undo()
+		map = map.resized(size, size)
+		_redo.clear()
+		_persist_autosave()
 		map_changed.emit()
 
 
@@ -59,6 +63,8 @@ func new_from_template(template_id: String) -> void:
 	Palette.clear_custom()
 	TileAtlas.clear_custom()
 	map = MapTemplates.make(template_id)
+	if map.w != grid_size or map.h != grid_size:
+		map = map.resized(grid_size, grid_size)
 	_redo.clear()
 	_persist_autosave()
 	map_changed.emit()
@@ -175,13 +181,13 @@ func _flood_fill(c: int, r: int) -> void:
 	var target := map.get_cell(layer, c, r)
 	if target == tid:
 		return
-	# Mark seen on push so each cell enters the stack at most once —
-	# a pop-count guard truncates fills larger than ~W*H/4 cells.
+	# Seen-on-push so each cell enters the stack at most once;
+	# the loop is bounded by the full map cell count (no truncation).
 	var seen := {}
 	var stack: Array[Vector2i] = [Vector2i(c, r)]
-	seen[r * MapData.W + c] = true
+	seen[r * map.w + c] = true
 	var filled := 0
-	var max_cells := MapData.W * MapData.H
+	var max_cells := map.w * map.h
 	while not stack.is_empty() and filled < max_cells:
 		var p: Vector2i = stack.pop_back()
 		if map.get_cell(layer, p.x, p.y) != target:
@@ -191,7 +197,7 @@ func _flood_fill(c: int, r: int) -> void:
 		for n in [Vector2i(p.x + 1, p.y), Vector2i(p.x - 1, p.y), Vector2i(p.x, p.y + 1), Vector2i(p.x, p.y - 1)]:
 			if not map.in_bounds(n.x, n.y):
 				continue
-			var key: int = n.y * MapData.W + n.x
+			var key: int = n.y * map.w + n.x
 			if not seen.has(key):
 				seen[key] = true
 				stack.append(n)
@@ -212,6 +218,7 @@ func undo() -> void:
 		return
 	_redo.append(map.clone())
 	map = _undo.pop_back()
+	grid_size = map.w
 	_persist_autosave()
 	map_changed.emit()
 
@@ -221,6 +228,7 @@ func redo() -> void:
 		return
 	_undo.append(map.clone())
 	map = _redo.pop_back()
+	grid_size = map.w
 	_persist_autosave()
 	map_changed.emit()
 
@@ -236,6 +244,7 @@ func import_json_text(text: String) -> bool:
 	_push_undo()
 	_sync_custom_tiles(m)
 	map = m
+	grid_size = m.w
 	_redo.clear()
 	_persist_autosave()
 	map_changed.emit()
@@ -331,6 +340,7 @@ func _try_load_autosave() -> bool:
 		return false
 	_sync_custom_tiles(m)
 	map = m
+	grid_size = m.w
 	return true
 
 
