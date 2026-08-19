@@ -1,8 +1,14 @@
 # Isometric Pixel Map — MEMORY
 
-## Son durum (2026-08-17)
+## Son durum (2026-08-19)
 
-**v0.7.0+14 — "Pixel Atelier" tema revizyonu (Sprint: tema + polish)**
+**v0.7.1+15 — Grid size bug fix + mobil responsive**
+
+### v0.7.1 değişiklikleri
+- **Grid size bug fix (High):** "Maps → Grid size 48/64" mevcut haritayı bozuyordu (statik W/H → diziler eşleşmiyordu, OOB yazma). `MapData.w/h` artık örnek başına; `resized()` kırp/doldur; undo/redo/import/autosave boyut senkronlu. Yeni selftest `_test_grid_size_bug`.
+- **Mobil responsive:** UI fiziksel pikselde layout (`stretch/mode=disabled` — mobilde butonlar ~13px'e küçülüyordu); TopBar FlowLeft + palet FlowContainer ile akışkan sarma; kompakt mod (<600px zoom/status, <480px title gizler); palet 44px dokunma hedefi; `_fit_zoom` haritayı viewport'a sığdırır.
+- Live smoke: 375x667 layout ✓, boyama (32x16 tile değişimi) ✓, konsol temiz ✓
+- Doğrulama: `verify.sh` VERIFY PASS (17 selftest)
 
 ### Live (ücretsiz)
 https://zo.pub/triangle/isometric-pixel-map/index.html
