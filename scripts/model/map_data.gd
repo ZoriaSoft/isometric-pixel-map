@@ -98,6 +98,23 @@ func resized(new_w: int, new_h: int) -> MapData:
 	return out
 
 
+## Rotate map content 90° clockwise (tile data moves; tile art stays fixed).
+func rotated_cw() -> MapData:
+	var out := MapData.new()
+	out.w = h
+	out.h = w
+	out.clear()
+	for r in h:
+		for c in w:
+			var nc := h - 1 - r
+			var nr := c
+			out.ground[nr * out.w + nc] = ground[r * w + c]
+			out.props[nr * out.w + nc] = props[r * w + c]
+	out.title = title
+	out.custom_tiles = custom_tiles.duplicate(true)
+	return out
+
+
 static func draw_order(gw: int, gh: int) -> Array[Vector2i]:
 	var order: Array[Vector2i] = []
 	for r in gh:

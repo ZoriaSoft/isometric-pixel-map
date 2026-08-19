@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.7.2+16] — 2026-08-19
+
+### Added
+- **Harita döndürme (rotate 90° CW)** — View grubuna "Rotate" butonu veya `R` kısayolu: tüm hücre verisi (ground + props) saat yönünde 90° döner, tile art sabit kalır (izometrik çizimler bozulmaz). Undo/redo ile geri alınır; autosave/JSON/share link'te boyut (dikdörtgen haritalarda w/h takaslı) korunur. Selftest: `_test_rotate` (kare + dikdörtgen + 4× tur + JSON + undo).
+
 ## [0.7.1+15] — 2026-08-19
 
 ### Fixed

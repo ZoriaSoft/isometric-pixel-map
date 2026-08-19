@@ -354,6 +354,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			Game.cycle_brush()
 		elif k.keycode == KEY_G:
 			_on_grid_toggle()
+		elif k.keycode == KEY_R and not k.ctrl_pressed:
+			_on_rotate_pressed()
+			get_viewport().set_input_as_handled()
 		elif k.keycode == KEY_1:
 			Game.set_layer(Palette.LAYER_GROUND)
 			_refresh_chrome_styles()
@@ -451,6 +454,11 @@ func _on_grid_toggle() -> void:
 		gv.queue_redraw()
 		_apply_grid_btn()
 		show_toast(L.t("grid_on") if _grid_on else L.t("grid_off"))
+
+
+func _on_rotate_pressed() -> void:
+	Game.rotate_map_cw()
+	show_toast(L.t("rotated"))
 
 
 func _on_new_pressed() -> void:

@@ -19,6 +19,7 @@ func _init() -> void:
 	failed += _test_desert_alias()
 	failed += _test_map_sizes()
 	failed += _test_grid_size_bug()
+	failed += _test_rotate()
 	failed += _test_custom_tiles()
 	if failed == 0:
 		print("SELFTEST PASS")
@@ -538,6 +539,73 @@ func _test_grid_size_bug() -> int:
 		return 1
 	g.free()
 	print("OK grid size bug")
+	return 0
+
+
+func _test_rotate() -> int:
+	print("== rotate ==")
+	var m := MapData.new()
+	m.set_cell("ground", 5, 3, Palette.DIRT)
+	m.props[m.idx(10, 20)] = Palette.TREE
+	var r1 := m.rotated_cw()
+	if r1.w != 32 or r1.h != 32:
+		print("FAIL rotate 32x32 dimensions: w=", r1.w, " h=", r1.h)
+		return 1
+	if r1.get_cell("ground", 31 - 3, 5) != Palette.DIRT:
+		print("FAIL rotate 32x32 ground at (28,5) got=", r1.get_cell("ground", 31 - 3, 5))
+		return 1
+	if r1.get_cell("props", 31 - 20, 10) != Palette.TREE:
+		print("FAIL rotate 32x32 props at (11,10) got=", r1.get_cell("props", 31 - 20, 10))
+		return 1
+	var r4 := r1.rotated_cw().rotated_cw().rotated_cw()
+	if r4.w != 32 or r4.h != 32:
+		print("FAIL 4x rotate dimensions")
+		return 1
+	if r4.get_cell("ground", 5, 3) != Palette.DIRT:
+		print("FAIL 4x rotate ground (5,3)")
+		return 1
+	if r4.get_cell("props", 10, 20) != Palette.TREE:
+		print("FAIL 4x rotate props (10,20)")
+		return 1
+	var rect := MapData.new()
+	rect.w = 32
+	rect.h = 16
+	rect.clear()
+	rect.set_cell("ground", 4, 2, Palette.DIRT)
+	var rect_rot := rect.rotated_cw()
+	if rect_rot.w != 16 or rect_rot.h != 32:
+		print("FAIL rectangular rotate dimensions: w=", rect_rot.w, " h=", rect_rot.h)
+		return 1
+	if rect_rot.get_cell("ground", 16 - 1 - 2, 4) != Palette.DIRT:
+		print("FAIL rectangular rotate ground cell at (13,4)")
+		return 1
+	var json_str := rect_rot.to_json()
+	var from_j := MapData.from_json(json_str)
+	if from_j == null:
+		print("FAIL rotated map from_json returned null")
+		return 1
+	if from_j.w != 16 or from_j.h != 32:
+		print("FAIL json roundtrip rotated dimensions: w=", from_j.w, " h=", from_j.h)
+		return 1
+	if from_j.get_cell("ground", 13, 4) != Palette.DIRT:
+		print("FAIL json roundtrip rotated cell at (13,4)")
+		return 1
+	var game_script: GDScript = load("res://scripts/autoload/Game.gd")
+	var g: Node = game_script.new()
+	g.map = rect.clone()
+	g.grid_size = 32
+	g.rotate_map_cw()
+	if g.map.w != 16 or g.map.h != 32 or g.grid_size != 16:
+		print("FAIL Game.rotate_map_cw() dimensions or grid_size")
+		g.free()
+		return 1
+	g.undo()
+	if g.map.w != 32 or g.map.h != 16 or g.grid_size != 32:
+		print("FAIL Game rotate undo dimensions or grid_size")
+		g.free()
+		return 1
+	g.free()
+	print("OK rotate")
 	return 0
 
 

@@ -1,7 +1,7 @@
 extends Node
 ## Global map state, tools, undo, save/load, export helpers.
 
-const APP_VERSION := "0.7.1+15"
+const APP_VERSION := "0.7.2+16"
 const AUTOSAVE_PATH := "user://autosave.json"
 const MAX_UNDO := 48
 
@@ -56,6 +56,17 @@ func set_map_size(size: int) -> void:
 		_redo.clear()
 		_persist_autosave()
 		map_changed.emit()
+
+
+func rotate_map_cw() -> void:
+	if map == null:
+		return
+	_push_undo()
+	map = map.rotated_cw()
+	grid_size = map.w
+	_redo.clear()
+	_persist_autosave()
+	map_changed.emit()
 
 
 func new_from_template(template_id: String) -> void:

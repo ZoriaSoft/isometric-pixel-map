@@ -44,6 +44,7 @@ var _strings: Dictionary = {
 		"brush_5x": "5×",
 		"tile_added": "Custom tile added",
 		"tile_fail": "Could not load tile PNG",
+		"rotated": "Map rotated 90°",
 	},
 	"tr": {
 		"app_name": "Isometric Pixel Map",
@@ -87,6 +88,7 @@ var _strings: Dictionary = {
 		"brush_5x": "5×",
 		"tile_added": "Özel tile eklendi",
 		"tile_fail": "Tile PNG yüklenemedi",
+		"rotated": "Harita 90° döndürüldü",
 	},
 }
 
