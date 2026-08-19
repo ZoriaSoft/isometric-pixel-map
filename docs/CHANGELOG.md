@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.7.1+15] — 2026-08-19
+
+### Fixed
+- **Grid size değişimi mevcut haritayı bozuyordu** — "Maps → Grid size 48/64" seçilince grid boyutu değişiyor ama harita dizileri eski boyutta kalıyordu; yeni sınırlar içinde boyama/fill/export "Out of bounds" hatası (web'de bellek riski) üretiyordu. Boyut artık `MapData` örnek başına taşınıyor (`w`/`h` — global static değil); size değişimi mevcut haritayı koruyarak yeniden boyutlandırıyor (kırp + çim doldurma, custom tile'lar taşınır). Undo/redo, JSON import ve autosave de boyutu senkronize ediyor. Selftest'e regresyon testi eklendi (`grid size bug`).
+
+### Added
+- **Mobil responsive düzen** — toolbar ve palet dar ekranda akışkan (FlowContainer) satırlara sarıyor; UI artık viewport stretch'ine göre değil fiziksel piksele göre ölçekleniyor (dar ekranda butonlar ~13px'e küçülüp dokunulamaz oluyordu); kompakt mod (<600px) zoom butonlarını ve status'u gizler, <480px'de title kutusunu gizler; palet butonları 44px dokunma hedefi; başlangıç zoom'u haritayı viewport'a sığdırıyor (stretch disabled + `_fit_zoom`).
+
 ## [0.7.0+14] — 2026-08-17
 
 ### Added

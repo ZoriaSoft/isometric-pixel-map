@@ -46,16 +46,22 @@ theme_override_constants/margin_bottom = 7
 layout_mode = 2
 theme_override_constants/separation = 9
 
-[node name="Brand" type="HBoxContainer" parent="UI/TopBar/Margin/HBox"]
+[node name="FlowLeft" type="FlowContainer" parent="UI/TopBar/Margin/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/h_separation = 9
+theme_override_constants/v_separation = 4
+
+[node name="Brand" type="HBoxContainer" parent="UI/TopBar/Margin/HBox/FlowLeft"]
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="BrandMarkWrap" type="Control" parent="UI/TopBar/Margin/HBox/Brand"]
+[node name="BrandMarkWrap" type="Control" parent="UI/TopBar/Margin/HBox/FlowLeft/Brand"]
 custom_minimum_size = Vector2(18, 18)
 layout_mode = 2
 mouse_filter = 2
 
-[node name="BrandMark" type="ColorRect" parent="UI/TopBar/Margin/HBox/Brand/BrandMarkWrap"]
+[node name="BrandMark" type="ColorRect" parent="UI/TopBar/Margin/HBox/FlowLeft/Brand/BrandMarkWrap"]
 custom_minimum_size = Vector2(11, 11)
 offset_left = 3.5
 offset_top = 3.5
@@ -65,7 +71,7 @@ rotation = 0.785398
 pivot_offset = Vector2(5.5, 5.5)
 color = Color(0.788, 0.663, 0.38, 1)
 
-[node name="BrandMarkInner" type="ColorRect" parent="UI/TopBar/Margin/HBox/Brand/BrandMarkWrap"]
+[node name="BrandMarkInner" type="ColorRect" parent="UI/TopBar/Margin/HBox/FlowLeft/Brand/BrandMarkWrap"]
 custom_minimum_size = Vector2(4, 4)
 offset_left = 7.0
 offset_top = 7.0
@@ -75,7 +81,7 @@ rotation = 0.785398
 pivot_offset = Vector2(2, 2)
 color = Color(0.0706, 0.0627, 0.0509, 1)
 
-[node name="BrandLabel" type="Label" parent="UI/TopBar/Margin/HBox/Brand"]
+[node name="BrandLabel" type="Label" parent="UI/TopBar/Margin/HBox/FlowLeft/Brand"]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("4_font")
 theme_override_font_sizes/font_size = 15
@@ -84,161 +90,161 @@ theme_override_constants/spacing_glyph = 2
 text = "ISO·MAP"
 vertical_alignment = 1
 
-[node name="SepBrand" type="VSeparator" parent="UI/TopBar/Margin/HBox"]
+[node name="SepBrand" type="VSeparator" parent="UI/TopBar/Margin/HBox/FlowLeft"]
 layout_mode = 2
 
-[node name="Tools" type="HBoxContainer" parent="UI/TopBar/Margin/HBox"]
+[node name="Tools" type="HBoxContainer" parent="UI/TopBar/Margin/HBox/FlowLeft"]
 layout_mode = 2
 theme_override_constants/separation = 2
 
-[node name="BtnPen" type="Button" parent="UI/TopBar/Margin/HBox/Tools"]
+[node name="BtnPen" type="Button" parent="UI/TopBar/Margin/HBox/FlowLeft/Tools"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(48, 30)
 layout_mode = 2
 tooltip_text = "Pen (P)"
 text = "Pen"
 
-[node name="BtnErase" type="Button" parent="UI/TopBar/Margin/HBox/Tools"]
+[node name="BtnErase" type="Button" parent="UI/TopBar/Margin/HBox/FlowLeft/Tools"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(52, 30)
 layout_mode = 2
 tooltip_text = "Erase (E)"
 text = "Erase"
 
-[node name="BtnFill" type="Button" parent="UI/TopBar/Margin/HBox/Tools"]
+[node name="BtnFill" type="Button" parent="UI/TopBar/Margin/HBox/FlowLeft/Tools"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(44, 30)
 layout_mode = 2
 tooltip_text = "Fill (F)"
 text = "Fill"
 
-[node name="SepTools" type="VSeparator" parent="UI/TopBar/Margin/HBox"]
+[node name="SepTools" type="VSeparator" parent="UI/TopBar/Margin/HBox/FlowLeft"]
 layout_mode = 2
 
-[node name="Brush" type="HBoxContainer" parent="UI/TopBar/Margin/HBox"]
+[node name="Brush" type="HBoxContainer" parent="UI/TopBar/Margin/HBox/FlowLeft"]
 layout_mode = 2
 theme_override_constants/separation = 2
 
-[node name="BtnBrush" type="Button" parent="UI/TopBar/Margin/HBox/Brush"]
+[node name="BtnBrush" type="Button" parent="UI/TopBar/Margin/HBox/FlowLeft/Brush"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(42, 30)
 layout_mode = 2
 tooltip_text = "Brush size (B)"
 text = "1×"
 
-[node name="SepBrush" type="VSeparator" parent="UI/TopBar/Margin/HBox"]
+[node name="SepBrush" type="VSeparator" parent="UI/TopBar/Margin/HBox/FlowLeft"]
 layout_mode = 2
 
-[node name="History" type="HBoxContainer" parent="UI/TopBar/Margin/HBox"]
+[node name="History" type="HBoxContainer" parent="UI/TopBar/Margin/HBox/FlowLeft"]
 layout_mode = 2
 theme_override_constants/separation = 2
 
-[node name="BtnUndo" type="Button" parent="UI/TopBar/Margin/HBox/History"]
+[node name="BtnUndo" type="Button" parent="UI/TopBar/Margin/HBox/FlowLeft/History"]
 custom_minimum_size = Vector2(56, 30)
 layout_mode = 2
 tooltip_text = "Undo (Ctrl+Z)"
 text = "Undo"
 
-[node name="BtnRedo" type="Button" parent="UI/TopBar/Margin/HBox/History"]
+[node name="BtnRedo" type="Button" parent="UI/TopBar/Margin/HBox/FlowLeft/History"]
 custom_minimum_size = Vector2(54, 30)
 layout_mode = 2
 tooltip_text = "Redo (Ctrl+Y)"
 text = "Redo"
 
-[node name="SepHist" type="VSeparator" parent="UI/TopBar/Margin/HBox"]
+[node name="SepHist" type="VSeparator" parent="UI/TopBar/Margin/HBox/FlowLeft"]
 layout_mode = 2
 
-[node name="View" type="HBoxContainer" parent="UI/TopBar/Margin/HBox"]
+[node name="View" type="HBoxContainer" parent="UI/TopBar/Margin/HBox/FlowLeft"]
 layout_mode = 2
 theme_override_constants/separation = 2
 
-[node name="BtnZoomOut" type="Button" parent="UI/TopBar/Margin/HBox/View"]
+[node name="BtnZoomOut" type="Button" parent="UI/TopBar/Margin/HBox/FlowLeft/View"]
 custom_minimum_size = Vector2(34, 30)
 layout_mode = 2
 tooltip_text = "Zoom out (-)"
 text = "−"
 
-[node name="BtnZoomIn" type="Button" parent="UI/TopBar/Margin/HBox/View"]
+[node name="BtnZoomIn" type="Button" parent="UI/TopBar/Margin/HBox/FlowLeft/View"]
 custom_minimum_size = Vector2(34, 30)
 layout_mode = 2
 tooltip_text = "Zoom in (+)"
 text = "+"
 
-[node name="BtnGrid" type="Button" parent="UI/TopBar/Margin/HBox/View"]
+[node name="BtnGrid" type="Button" parent="UI/TopBar/Margin/HBox/FlowLeft/View"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(34, 30)
 layout_mode = 2
 tooltip_text = "Toggle grid (G)"
 text = "#"
 
-[node name="SepView" type="VSeparator" parent="UI/TopBar/Margin/HBox"]
+[node name="SepView" type="VSeparator" parent="UI/TopBar/Margin/HBox/FlowLeft"]
 layout_mode = 2
 
-[node name="Layers" type="HBoxContainer" parent="UI/TopBar/Margin/HBox"]
+[node name="Layers" type="HBoxContainer" parent="UI/TopBar/Margin/HBox/FlowLeft"]
 layout_mode = 2
 theme_override_constants/separation = 2
 
-[node name="BtnGround" type="Button" parent="UI/TopBar/Margin/HBox/Layers"]
+[node name="BtnGround" type="Button" parent="UI/TopBar/Margin/HBox/FlowLeft/Layers"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(64, 30)
 layout_mode = 2
 tooltip_text = "Ground layer (1)"
 text = "Ground"
 
-[node name="BtnProps" type="Button" parent="UI/TopBar/Margin/HBox/Layers"]
+[node name="BtnProps" type="Button" parent="UI/TopBar/Margin/HBox/FlowLeft/Layers"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(58, 30)
 layout_mode = 2
 tooltip_text = "Props layer (2)"
 text = "Props"
 
-[node name="SepLayers" type="VSeparator" parent="UI/TopBar/Margin/HBox"]
+[node name="SepLayers" type="VSeparator" parent="UI/TopBar/Margin/HBox/FlowLeft"]
 layout_mode = 2
 
-[node name="File" type="HBoxContainer" parent="UI/TopBar/Margin/HBox"]
+[node name="File" type="HBoxContainer" parent="UI/TopBar/Margin/HBox/FlowLeft"]
 layout_mode = 2
 theme_override_constants/separation = 3
 
-[node name="BtnNew" type="Button" parent="UI/TopBar/Margin/HBox/File"]
+[node name="BtnNew" type="Button" parent="UI/TopBar/Margin/HBox/FlowLeft/File"]
 layout_mode = 2
 tooltip_text = "Start from a job-driven template"
 text = "Maps"
 
-[node name="BtnLoad" type="Button" parent="UI/TopBar/Margin/HBox/File"]
+[node name="BtnLoad" type="Button" parent="UI/TopBar/Margin/HBox/FlowLeft/File"]
 layout_mode = 2
 tooltip_text = "Load JSON map"
 text = "Load"
 
-[node name="BtnSave" type="Button" parent="UI/TopBar/Margin/HBox/File"]
+[node name="BtnSave" type="Button" parent="UI/TopBar/Margin/HBox/FlowLeft/File"]
 layout_mode = 2
 tooltip_text = "Download JSON"
 text = "Save"
 
-[node name="BtnPng" type="Button" parent="UI/TopBar/Margin/HBox/File"]
+[node name="BtnPng" type="Button" parent="UI/TopBar/Margin/HBox/FlowLeft/File"]
 unique_name_in_owner = true
 layout_mode = 2
 tooltip_text = "Export PNG image"
 text = "PNG"
 
-[node name="BtnTile" type="Button" parent="UI/TopBar/Margin/HBox/File"]
+[node name="BtnTile" type="Button" parent="UI/TopBar/Margin/HBox/FlowLeft/File"]
 unique_name_in_owner = true
 layout_mode = 2
 tooltip_text = "Upload custom tile PNG"
 text = "Tile+"
 
-[node name="BtnShare" type="Button" parent="UI/TopBar/Margin/HBox/File"]
+[node name="BtnShare" type="Button" parent="UI/TopBar/Margin/HBox/FlowLeft/File"]
 unique_name_in_owner = true
 layout_mode = 2
 tooltip_text = "Copy share link"
 text = "Share"
 
-[node name="BtnAbout" type="Button" parent="UI/TopBar/Margin/HBox"]
+[node name="BtnAbout" type="Button" parent="UI/TopBar/Margin/HBox/FlowLeft"]
 custom_minimum_size = Vector2(32, 30)
 layout_mode = 2
 tooltip_text = "About & shortcuts"
 text = "?"
 
-[node name="TitleInput" type="LineEdit" parent="UI/TopBar/Margin/HBox"]
+[node name="TitleInput" type="LineEdit" parent="UI/TopBar/Margin/HBox/FlowLeft"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(120, 30)
 layout_mode = 2
@@ -248,10 +254,6 @@ placeholder_text = "Map title..."
 tooltip_text = "Map title (used for PNG/JSON filename)"
 theme_override_fonts/font = ExtResource("6_font")
 theme_override_font_sizes/font_size = 12
-
-[node name="Spacer" type="Control" parent="UI/TopBar/Margin/HBox"]
-layout_mode = 2
-size_flags_horizontal = 3
 
 [node name="StatusLabel" type="Label" parent="UI/TopBar/Margin/HBox"]
 unique_name_in_owner = true
@@ -300,9 +302,10 @@ theme_override_font_sizes/font_size = 11
 theme_override_colors/font_color = Color(0.56, 0.52, 0.44, 1)
 horizontal_alignment = 2
 
-[node name="PaletteBar" type="HBoxContainer" parent="UI/BottomBar/Margin/VBox"]
+[node name="PaletteBar" type="FlowContainer" parent="UI/BottomBar/Margin/VBox"]
 layout_mode = 2
-theme_override_constants/separation = 5
+theme_override_constants/h_separation = 5
+theme_override_constants/v_separation = 5
 script = ExtResource("3_palette")
 
 [node name="Dimmer" type="ColorRect" parent="UI"]
@@ -501,23 +504,23 @@ text = ""
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[connection signal="pressed" from="UI/TopBar/Margin/HBox/Tools/BtnPen" to="." method="_on_pen_pressed"]
-[connection signal="pressed" from="UI/TopBar/Margin/HBox/Tools/BtnErase" to="." method="_on_erase_pressed"]
-[connection signal="pressed" from="UI/TopBar/Margin/HBox/Tools/BtnFill" to="." method="_on_fill_pressed"]
-[connection signal="pressed" from="UI/TopBar/Margin/HBox/Brush/BtnBrush" to="." method="_on_brush_pressed"]
-[connection signal="pressed" from="UI/TopBar/Margin/HBox/History/BtnUndo" to="." method="_on_undo_pressed"]
-[connection signal="pressed" from="UI/TopBar/Margin/HBox/History/BtnRedo" to="." method="_on_redo_pressed"]
-[connection signal="pressed" from="UI/TopBar/Margin/HBox/View/BtnZoomOut" to="." method="_on_zoom_out"]
-[connection signal="pressed" from="UI/TopBar/Margin/HBox/View/BtnZoomIn" to="." method="_on_zoom_in"]
-[connection signal="pressed" from="UI/TopBar/Margin/HBox/View/BtnGrid" to="." method="_on_grid_toggle"]
-[connection signal="pressed" from="UI/TopBar/Margin/HBox/Layers/BtnGround" to="." method="_on_layer_ground"]
-[connection signal="pressed" from="UI/TopBar/Margin/HBox/Layers/BtnProps" to="." method="_on_layer_props"]
-[connection signal="pressed" from="UI/TopBar/Margin/HBox/File/BtnNew" to="." method="_on_new_pressed"]
-[connection signal="pressed" from="UI/TopBar/Margin/HBox/File/BtnLoad" to="." method="_on_load_pressed"]
-[connection signal="pressed" from="UI/TopBar/Margin/HBox/File/BtnSave" to="." method="_on_save_pressed"]
-[connection signal="pressed" from="UI/TopBar/Margin/HBox/File/BtnPng" to="." method="_on_export_png_pressed"]
-[connection signal="pressed" from="UI/TopBar/Margin/HBox/File/BtnTile" to="." method="_on_tile_pressed"]
-[connection signal="pressed" from="UI/TopBar/Margin/HBox/File/BtnShare" to="." method="_on_share_pressed"]
-[connection signal="pressed" from="UI/TopBar/Margin/HBox/BtnAbout" to="." method="_on_about_pressed"]
+[connection signal="pressed" from="UI/TopBar/Margin/HBox/FlowLeft/Tools/BtnPen" to="." method="_on_pen_pressed"]
+[connection signal="pressed" from="UI/TopBar/Margin/HBox/FlowLeft/Tools/BtnErase" to="." method="_on_erase_pressed"]
+[connection signal="pressed" from="UI/TopBar/Margin/HBox/FlowLeft/Tools/BtnFill" to="." method="_on_fill_pressed"]
+[connection signal="pressed" from="UI/TopBar/Margin/HBox/FlowLeft/Brush/BtnBrush" to="." method="_on_brush_pressed"]
+[connection signal="pressed" from="UI/TopBar/Margin/HBox/FlowLeft/History/BtnUndo" to="." method="_on_undo_pressed"]
+[connection signal="pressed" from="UI/TopBar/Margin/HBox/FlowLeft/History/BtnRedo" to="." method="_on_redo_pressed"]
+[connection signal="pressed" from="UI/TopBar/Margin/HBox/FlowLeft/View/BtnZoomOut" to="." method="_on_zoom_out"]
+[connection signal="pressed" from="UI/TopBar/Margin/HBox/FlowLeft/View/BtnZoomIn" to="." method="_on_zoom_in"]
+[connection signal="pressed" from="UI/TopBar/Margin/HBox/FlowLeft/View/BtnGrid" to="." method="_on_grid_toggle"]
+[connection signal="pressed" from="UI/TopBar/Margin/HBox/FlowLeft/Layers/BtnGround" to="." method="_on_layer_ground"]
+[connection signal="pressed" from="UI/TopBar/Margin/HBox/FlowLeft/Layers/BtnProps" to="." method="_on_layer_props"]
+[connection signal="pressed" from="UI/TopBar/Margin/HBox/FlowLeft/File/BtnNew" to="." method="_on_new_pressed"]
+[connection signal="pressed" from="UI/TopBar/Margin/HBox/FlowLeft/File/BtnLoad" to="." method="_on_load_pressed"]
+[connection signal="pressed" from="UI/TopBar/Margin/HBox/FlowLeft/File/BtnSave" to="." method="_on_save_pressed"]
+[connection signal="pressed" from="UI/TopBar/Margin/HBox/FlowLeft/File/BtnPng" to="." method="_on_export_png_pressed"]
+[connection signal="pressed" from="UI/TopBar/Margin/HBox/FlowLeft/File/BtnTile" to="." method="_on_tile_pressed"]
+[connection signal="pressed" from="UI/TopBar/Margin/HBox/FlowLeft/File/BtnShare" to="." method="_on_share_pressed"]
+[connection signal="pressed" from="UI/TopBar/Margin/HBox/FlowLeft/BtnAbout" to="." method="_on_about_pressed"]
 [connection signal="gui_input" from="UI/Dimmer" to="." method="_on_dimmer_input"]
 [connection signal="pressed" from="UI/AboutPanel/Margin/VBox/AboutClose" to="." method="_on_about_close"]

@@ -1,4 +1,4 @@
-extends HBoxContainer
+extends FlowContainer
 ## Palette buttons with TileAtlas previews; dim tiles not on active layer.
 
 
@@ -21,8 +21,6 @@ func _rebuild() -> void:
 	for c in get_children():
 		c.queue_free()
 	_add_group(Palette.ground_ids(), Palette.LAYER_GROUND)
-	var sep := VSeparator.new()
-	add_child(sep)
 	_add_group(Palette.prop_ids(), Palette.LAYER_PROPS)
 	_highlight()
 
@@ -30,7 +28,7 @@ func _rebuild() -> void:
 func _add_group(ids: Array[int], layer: String) -> void:
 	for id in ids:
 		var btn := Button.new()
-		btn.custom_minimum_size = Vector2(40, 40)
+		btn.custom_minimum_size = Vector2(44, 44)
 		btn.tooltip_text = "%s (%s)" % [Palette.name_of(id), layer]
 		btn.toggle_mode = true
 		btn.set_meta("tile_id", id)
